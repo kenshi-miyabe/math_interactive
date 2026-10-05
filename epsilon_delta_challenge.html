@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ε–δ Challenge</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --ink:#16181d;
+    --muted:#6d7280;
+    --line:#d9dde7;
+    --accent:#3b5ccc;
+    --good:#177245;
+    --bad:#b3261e;
+    --warn:#8a5a00;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  header{
+    max-width:1100px;
+    margin:0 auto;
+    padding:28px 20px 12px;
+  }
+  h1{margin:0 0 8px;font-size:clamp(28px,5vw,48px);letter-spacing:-.03em}
+  .subtitle{color:var(--muted);font-size:15px;line-height:1.7}
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:10px 20px 40px;
+    display:grid;
+    grid-template-columns: 1.35fr .9fr;
+    gap:18px;
+  }
+  @media (max-width:850px){main{grid-template-columns:1fr}}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    box-shadow:0 8px 30px rgba(20,30,60,.06);
+    overflow:hidden;
+  }
+  .pad{padding:18px}
+  .statusbar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    padding:14px 18px;border-bottom:1px solid var(--line);background:#fbfcff
+  }
+  .pill{
+    border:1px solid var(--line);border-radius:999px;padding:7px 11px;
+    font-size:13px;background:white;
+  }
+  canvas{display:block;width:100%;height:520px;background:white}
+  .section-title{font-weight:700;margin:0 0 10px;font-size:16px}
+  .equation{
+    font-family:"Times New Roman",serif;
+    font-size:24px;
+    text-align:center;
+    padding:14px 10px;
+    background:#f8f9fd;border-radius:12px;border:1px solid var(--line);
+  }
+  .epsilon{
+    font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-.02em
+  }
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input[type=range]{width:100%}
+  input[type=number]{
+    width:130px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    font-size:16px;background:white;color:var(--ink)
+  }
+  button{
+    appearance:none;border:0;border-radius:12px;padding:11px 14px;
+    font-weight:700;cursor:pointer;font-size:14px
+  }
+  .primary{background:var(--accent);color:white}
+  .secondary{background:#eef1fb;color:#24366f}
+  .ghost{background:white;border:1px solid var(--line);color:var(--ink)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .message{
+    min-height:92px;border-radius:14px;padding:14px;margin-top:12px;
+    border:1px solid var(--line);background:#fafbfe;line-height:1.65
+  }
+  .message.good{border-color:#a8d8bf;background:#f1fbf5;color:#0e5f38}
+  .message.bad{border-color:#efb1ad;background:#fff5f4;color:#8e1f18}
+  .message.warn{border-color:#e8d5a8;background:#fffaf0;color:#714a00}
+  .small{font-size:13px;color:var(--muted);line-height:1.65}
+  .rule{
+    margin-top:14px;padding:12px;border-left:4px solid var(--accent);
+    background:#f7f9ff;border-radius:8px;font-size:14px;line-height:1.7
+  }
+  .score{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px
+  }
+  .score > div{
+    border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center
+  }
+  .score strong{display:block;font-size:22px}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+  select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:white;font-size:15px;margin-bottom:12px}
+  .message p{margin:10px 0}.message ol{padding-left:22px}.message li{margin:8px 0}
+  .graph-tools{padding:12px 18px;border-bottom:1px solid var(--line)}
+  details{margin-top:10px}
+  summary{cursor:pointer;font-weight:700}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+</style>
+</head>
+<body>
+<header>
+  <h1>ε–δ Challenge</h1>
+  <div class="subtitle">
+    コンピュータが <b>ε</b> を指定します．あなたは <b>δ</b> を選んでください．
+    その後，コンピュータが <b>0 &lt; |x-a| &lt; δ</b> の範囲から反例を探します．
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="statusbar">
+      <span class="pill" id="roundPill">Round 1 / 5</span>
+      <span class="pill" id="functionPill">f(x)=x², a=1</span>
+      <span class="pill" id="modePill">対戦中</span>
+    </div>
+    <div class="graph-tools">
+      <div class="row"><button id="zoomIn" class="secondary" aria-label="グラフを拡大">＋ 拡大</button><button id="zoomOut" class="secondary" aria-label="グラフを縮小">− 縮小</button><button id="zoomFit" class="ghost">ε・δ に合わせる</button><button id="zoomReset" class="ghost">全体表示</button></div>
+      <div class="small">(a, f(a)) を中心に拡大・縮小します．グラフ上のホイールでも操作できます．</div>
+    </div>
+    <canvas id="graph" width="800" height="520" role="img" aria-label="関数とεの横帯、δの縦帯を示すグラフ"></canvas>
+    <div class="pad">
+      <div class="legend">
+        <span><span class="dot" style="background:#3b5ccc"></span>関数</span>
+        <span><span class="dot" style="background:#e3a008"></span>δ の範囲</span>
+        <span><span class="dot" style="background:#d94f4f"></span>ε の帯</span>
+        <span><span class="dot" style="background:#111"></span>コンピュータが選んだ x</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="pad">
+      <div class="section-title">今回の課題</div>
+      <label for="problemSelect" class="small">問題を選ぶ（切り替えると新しい挑戦が始まります）</label>
+      <select id="problemSelect"></select>
+      <div class="equation" id="eqBox">f(x)=x², a=1</div>
+
+      <div style="margin-top:16px">
+        <div class="small">コンピュータが指定した ε</div>
+        <div class="epsilon" id="epsilonValue">ε = 0.20</div>
+      </div>
+
+      <div style="margin-top:18px">
+        <div class="row" style="justify-content:space-between">
+          <label for="deltaRange"><b>あなたの δ</b></label>
+          <input id="deltaNumber" aria-label="δの数値" type="number" min="0.001" max="2" step="0.001" value="0.1">
+        </div>
+        <input id="deltaRange" type="range" min="0.001" max="2" step="0.001" value="0.1">
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <button id="challengeBtn" class="primary">この δ で勝負する</button>
+        <button id="hintBtn" class="secondary">ヒント</button>
+      </div>
+
+      <div id="message" class="message" aria-live="polite">
+        δ を選んで「この δ で勝負する」を押してください．
+      </div>
+
+      <div class="rule">
+        勝利条件：すべての x について，
+        <br><b>0 &lt; |x-a| &lt; δ ⇒ |f(x)-f(a)| &lt; ε</b>
+        <br>が成り立つこと．
+      </div>
+
+      <div class="score">
+        <div><span class="small">勝ち</span><strong id="wins">0</strong></div>
+        <div><span class="small">負け</span><strong id="losses">0</strong></div>
+        <div><span class="small">連勝</span><strong id="streak">0</strong></div>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <button id="nextBtn" class="ghost" disabled>同じ問題で再挑戦</button>
+        <button id="resetBtn" class="ghost">成績をリセット</button>
+      </div>
+
+      <details>
+        <summary>この教材の狙い</summary>
+        <div class="small" style="margin-top:8px">
+          ε–δ 定義を「量化記号の順序」として体験するためのミニゲームです．
+          コンピュータが ε を先に選び，学生が δ を選び，最後にコンピュータが x を選びます．
+          不連続な関数では，どれだけ δ を小さくしても勝てない場合があります．
+        </div>
+      </details>
+    </div>
+  </aside>
+</main>
+
+<script>
+const canvas = document.getElementById('graph');
+const ctx = canvas.getContext('2d');
+const dpr = window.devicePixelRatio || 1;
+
+function fitCanvas(){
+  const r = canvas.getBoundingClientRect();
+  canvas.width = Math.floor(r.width*dpr);
+  canvas.height = Math.floor(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+window.addEventListener('resize', fitCanvas);
+
+const problems = [
+  {
+    name:"f(x)=x², a=1",
+    eq:"f(x)=x²,　a=1",
+    a:1, fx:x=>x*x, fa:1,
+    xmin:-1, xmax:3, ymin:-1, ymax:5,
+    deltaMax:1.3,
+    epsList:[0.08,0.12,0.20,0.35],
+    hint:"x=1+h と置いて |x²−1|=|h||2+h| を考えると，δ の決め方が見えてきます．"
+  },
+  {
+    name:"f(x)=|x|, a=0",
+    eq:"f(x)=|x|,　a=0",
+    a:0, fx:x=>Math.abs(x), fa:0,
+    xmin:-2, xmax:2, ymin:-0.4, ymax:2.3,
+    deltaMax:1.5,
+    epsList:[0.08,0.15,0.25,0.50],
+    hint:"この場合，|f(x)-f(0)| と |x-0| は同じ量です．"
+  },
+  {
+    name:"f(x)=sin x, a=0",
+    eq:"f(x)=sin x,　a=0",
+    a:0, fx:x=>Math.sin(x), fa:0,
+    xmin:-3, xmax:3, ymin:-1.5, ymax:1.5,
+    deltaMax:1.5,
+    epsList:[0.08,0.15,0.30,0.60],
+    hint:"|sin x|≤|x| を使えば，安全な δ がすぐに見つかります．"
+  },
+  {
+    name:"f(x)=√x, a=1",
+    eq:"f(x)=√x,　a=1",
+    a:1, fx:x=>x<0?NaN:Math.sqrt(x), fa:1,
+    xmin:-0.3, xmax:2.6, ymin:-0.4, ymax:1.8,
+    deltaMax:0.95,
+    epsList:[0.05,0.10,0.18,0.30],
+    hint:"√x−1=(x−1)/(√x+1) と変形すると，|x−1| との関係が見えます．"
+  },
+  {
+    name:"段差関数（不連続）, a=0",
+    eq:"f(x)=0 (x≤0), 1 (x>0),　a=0",
+    a:0, fx:x=>x<=0?0:1, fa:0, discontinuous:true,
+    holes:[[0,1]],
+    xmin:-2, xmax:2, ymin:-0.5, ymax:1.5,
+    deltaMax:1.5,
+    epsList:[0.20,0.35,0.50,0.70],
+    hint:"右側から 0 に近づく x を考えてください．δ を小さくするだけで勝てるでしょうか．"
+  },
+  {
+    name:"1点だけ値が違う関数（不連続）, a=0",
+    eq:"f(x)=1 (x≠0), 0 (x=0),　a=0",
+    a:0, fx:x=>x===0?0:1, fa:0, discontinuous:true,
+    holes:[[0,1]], xmin:-2, xmax:2, ymin:-0.5, ymax:1.5,
+    deltaMax:1.5, epsList:[0.2,0.35,0.5,0.7],
+    hint:"x=0 自体は調べる範囲から除きますが，比較する値は f(0)=0 です．0 にどれだけ近づいても，x≠0 なら f(x)=1 です．"
+  }
+];
+// On these continuous examples the boundary bound is not attained inside the open interval.
+problems[0].critical=e=>e/(Math.sqrt(1+e)+1);
+problems[0].bound=d=>2*d+d*d;
+problems[0].proof='h=x−1 とおくと，|x²−1|=|h||2+h| ≤ |h|(2+|h|) < δ(2+δ)';
+problems[1].critical=e=>e;
+problems[1].bound=d=>d;
+problems[1].proof='|f(x)−f(0)|=|x| < δ';
+problems[2].critical=e=>Math.asin(e);
+problems[2].bound=d=>Math.sin(d);
+problems[2].proof='今回は δ≤1.5<π/2 なので，|sin x|=sin|x| < sin δ';
+problems[3].critical=e=>e*(2-e);
+problems[3].bound=d=>d/(1+Math.sqrt(1-d));
+problems[3].proof='1−δ<x<1+δ より，|√x−1| < 1−√(1−δ)';
+
+let round = 0;
+let wins=0, losses=0, streak=0;
+let eps=0.2, delta=0.1;
+let resultPoint=null;
+let locked=false;
+
+const $ = id=>document.getElementById(id);
+const deltaRange=$('deltaRange'), deltaNumber=$('deltaNumber');
+const challengeBtn=$('challengeBtn'), hintBtn=$('hintBtn'), nextBtn=$('nextBtn');
+const message=$('message');
+
+let selected=0;
+let view=null;
+const format=n=>Number(n.toPrecision(8)).toString();
+problems.forEach((p,i)=>{
+  const option=document.createElement('option'); option.value=i; option.textContent=p.name;
+  $('problemSelect').append(option);
+});
+function current(){ return problems[selected]; }
+function resetView(){
+  const p=current(); view={xmin:p.xmin,xmax:p.xmax,ymin:p.ymin,ymax:p.ymax};
+}
+function setupGame(){
+  round=0; wins=0; losses=0; streak=0;
+  updateScore(); loadRound();
+}
+$('problemSelect').addEventListener('change',()=>{selected=Number($('problemSelect').value);round++;loadRound();});
+
+function loadRound(){
+  locked=false; resultPoint=null;
+  deltaRange.disabled=false; deltaNumber.disabled=false;
+  resetView();
+  const p=current();
+  eps=p.epsList[Math.floor(Math.random()*p.epsList.length)];
+  delta=Math.min(0.1,p.deltaMax);
+  $('roundPill').textContent=`挑戦 ${round+1}`;
+  $('functionPill').textContent=p.name;
+  $('modePill').textContent='対戦中';
+  $('eqBox').textContent=p.eq;
+  $('epsilonValue').textContent=`ε = ${eps.toFixed(2)}`;
+  deltaRange.max=p.deltaMax;
+  deltaNumber.max=p.deltaMax;
+  deltaRange.value=delta;
+  deltaNumber.value=delta;
+  challengeBtn.disabled=false; hintBtn.disabled=false;
+  nextBtn.disabled=true;
+  message.className='message';
+  message.innerHTML='δ を選んで「この δ で勝負する」を押してください．';
+  draw();
+}
+
+function updateScore(){
+  $('wins').textContent=wins;
+  $('losses').textContent=losses;
+  $('streak').textContent=streak;
+}
+
+function setDelta(v){
+  const p=current();
+  v=Math.max(0.001,Math.min(Number(v)||0.001,p.deltaMax));
+  delta=v;
+  deltaRange.value=v;
+  deltaNumber.value=v.toString();
+  resultPoint=null;
+  draw();
+}
+
+deltaRange.addEventListener('input',()=>{ if(!locked)setDelta(deltaRange.value); });
+deltaNumber.addEventListener('input',()=>{ if(!locked)setDelta(deltaNumber.value); });
+
+challengeBtn.addEventListener('click',()=>{
+  if(locked) return;
+  const p=current();
+  const success = !p.discontinuous && delta <= p.critical(eps);
+  locked=true;
+  challengeBtn.disabled=true; hintBtn.disabled=true; deltaRange.disabled=true; deltaNumber.disabled=true;
+  nextBtn.disabled=false;
+  if(success){
+    wins++; streak++;
+    resultPoint=null;
+    $('modePill').textContent='勝ち：すべての x で成立';
+    message.className='message good';
+    const bound=p.bound(delta);
+    message.innerHTML=`<b>勝ち！ 選んだ δ=${format(delta)} で条件が成立します．</b>
+      <ol>
+        <li><b>調べる x の範囲：</b>${format(p.a-delta)} &lt; x &lt; ${format(p.a+delta)}（x=${p.a} は除く）です．グラフの黄色い縦帯の内側にあたります．</li>
+        <li><b>目標：</b>その範囲のどの x でも，f(x) と f(a)=${p.fa} の差を ε=${format(eps)} より小さくすることです．つまり ${format(p.fa-eps)} &lt; f(x) &lt; ${format(p.fa+eps)}，赤い横帯の内側に入れば成功です．</li>
+        <li><b>すべての x で確かめる：</b>${p.proof}．この右辺は約 ${format(bound)} で，ε=${format(eps)} 以下です．したがって，範囲内のすべての x で <b>|f(x)−f(a)| &lt; ε</b> が成り立ちます．</li>
+      </ol>
+      <p><b>なぜ反例がない？</b>黄色い帯の内側にある青いグラフは，すべて赤い帯の内側に収まるからです．コンピュータがどの x を選んでも，誤差を ε 以上にできません．</p>
+      <p>上の数は「実際に達する最大値」ではなく，誤差の上限です．端点 |x−a|=δ は含まれないので，実際の誤差はこの上限より小さくなります．上限が ε と等しくても成功です．</p>
+      <p>今回はこの ε に対する成功です．a での連続性には，<b>どんな ε&gt;0 に対しても</b>適切な δ&gt;0 を選べることが必要です．</p>`;
+  }else{
+    losses++; streak=0;
+    const h=p.discontinuous ? delta/2 : (p.critical(eps)+delta)/2;
+    const x=p.a+(selected===3?-h:h), y=p.fx(x), err=Math.abs(y-p.fa);
+    resultPoint={x,y,err,success};
+    $('modePill').textContent='反例あり'; message.className='message bad';
+    message.innerHTML=`<b>この δ では条件を満たしません．</b>
+      <p>黒い点 x≈${format(x)} が反例です．</p>
+      <ol><li>a からの距離は |x−a|≈${format(Math.abs(x-p.a))}．<b>0 より大きく δ=${format(delta)} より小さい</b>ので，選んでよい x です．</li>
+      <li>ところが f(x)≈${format(y)} なので，<b>|f(x)−f(a)|≈${format(err)} ≥ ε=${format(eps)}</b>．赤い横帯の内側から外れています．</li></ol>
+      <p>条件は「すべての x」で成り立つ必要があります．このような点が<b>1つでも</b>あれば，その δ は使えません．</p>`+
+      (p.discontinuous ? `<p><b>小さくしても勝てない理由：</b>どんな δ&gt;0 でも x=δ/2 を選べば，0&lt;|x|&lt;δ なのに f(x)=1，f(0)=0 で誤差は常に 1 です．今回の ε は 1 より小さいので必ず反例になります．この関数は a=0 で不連続です．</p>` : '<p>同じ問題で再挑戦し，δ を小さくして黄色い帯を狭めてみましょう．</p>');
+  }
+  updateScore(); draw();
+});
+
+hintBtn.addEventListener('click',()=>{
+  message.className='message warn';
+  message.textContent=current().hint;
+});
+
+nextBtn.addEventListener('click',()=>{
+  const previousEps=eps;
+  round++; loadRound(); eps=previousEps;
+  $('epsilonValue').textContent=`ε = ${eps.toFixed(2)}`; draw();
+});
+
+function zoom(factor){
+  const p=current();
+  const width=(view.xmax-view.xmin)*factor, height=(view.ymax-view.ymin)*factor;
+  if(width<0.0001 || width>1000 || height<0.0001 || height>1000) return;
+  view={xmin:p.a-width/2,xmax:p.a+width/2,ymin:p.fa-height/2,ymax:p.fa+height/2}; draw();
+}
+$('zoomIn').addEventListener('click',()=>zoom(0.7));
+$('zoomOut').addEventListener('click',()=>zoom(1/0.7));
+$('zoomReset').addEventListener('click',()=>{resetView();draw();});
+$('zoomFit').addEventListener('click',()=>{
+  const p=current(); view={xmin:p.a-1.6*delta,xmax:p.a+1.6*delta,ymin:p.fa-1.6*eps,ymax:p.fa+1.6*eps};draw();
+});
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.15:1/1.15);},{passive:false});
+
+$('resetBtn').addEventListener('click',setupGame);
+
+function sx(x,p,w){ return (x-p.xmin)/(p.xmax-p.xmin)*w; }
+function sy(y,p,h){ return h-(y-p.ymin)/(p.ymax-p.ymin)*h; }
+
+function draw(){
+  if(!view) return;
+  const p={...current(),...view};
+  const W=canvas.clientWidth, H=canvas.clientHeight;
+  ctx.clearRect(0,0,W,H);
+
+  // background
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+
+  // epsilon band
+  const yTop=sy(p.fa+eps,p,H), yBot=sy(p.fa-eps,p,H);
+  ctx.fillStyle="rgba(217,79,79,.10)";
+  ctx.fillRect(0,Math.min(yTop,yBot),W,Math.abs(yBot-yTop));
+
+  // delta band
+  const xL=sx(p.a-delta,p,W), xR=sx(p.a+delta,p,W);
+  ctx.fillStyle="rgba(227,160,8,.12)";
+  ctx.fillRect(Math.min(xL,xR),0,Math.abs(xR-xL),H);
+
+  // grid
+  ctx.strokeStyle="#eceef4"; ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){
+    let x=i*W/10;
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+    let y=i*H/10;
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+
+  ctx.fillStyle='#6d7280';ctx.font='11px system-ui';
+  for(let i=1;i<10;i+=2){
+    ctx.fillText(format(p.xmin+(p.xmax-p.xmin)*i/10),i*W/10,H-6);
+    ctx.fillText(format(p.ymax-(p.ymax-p.ymin)*i/10),5,i*H/10);
+  }
+
+  // axes
+  ctx.strokeStyle="#a7adbb";ctx.lineWidth=1.2;
+  if(p.xmin<=0&&p.xmax>=0){
+    let x0=sx(0,p,W);ctx.beginPath();ctx.moveTo(x0,0);ctx.lineTo(x0,H);ctx.stroke();
+  }
+  if(p.ymin<=0&&p.ymax>=0){
+    let y0=sy(0,p,H);ctx.beginPath();ctx.moveTo(0,y0);ctx.lineTo(W,y0);ctx.stroke();
+  }
+
+  // epsilon lines
+  ctx.setLineDash([6,5]);ctx.strokeStyle="rgba(217,79,79,.75)";
+  [p.fa-eps,p.fa+eps].forEach(y=>{
+    ctx.beginPath();ctx.moveTo(0,sy(y,p,H));ctx.lineTo(W,sy(y,p,H));ctx.stroke();
+  });
+
+  // delta lines
+  ctx.strokeStyle="rgba(227,160,8,.9)";
+  [p.a-delta,p.a+delta].forEach(x=>{
+    ctx.beginPath();ctx.moveTo(sx(x,p,W),0);ctx.lineTo(sx(x,p,W),H);ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // function
+  ctx.strokeStyle="#3b5ccc";ctx.lineWidth=3;ctx.beginPath();
+  let started=false, previousX=null;
+  const N=Math.max(700,Math.floor(W));
+  for(let i=0;i<=N;i++){
+    const x=p.xmin+(p.xmax-p.xmin)*i/N;
+    const y=p.discontinuous ? (selected===4 ? (x<=0?0:1) : 1) : p.fx(x);
+    if(p.discontinuous && previousX!==null && previousX<=0 && x>0) started=false;
+    previousX=x;
+    if(!Number.isFinite(y)){started=false;continue;}
+    const X=sx(x,p,W), Y=sy(y,p,H);
+    if(!started){ctx.moveTo(X,Y);started=true}else ctx.lineTo(X,Y);
+  }
+  ctx.stroke();
+
+  // Open circles mark excluded branch values at a discontinuity.
+  (p.holes||[]).forEach(([x,y])=>{
+    ctx.beginPath();ctx.arc(sx(x,p,W),sy(y,p,H),5,0,Math.PI*2);
+    ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#3b5ccc';ctx.lineWidth=2;ctx.stroke();
+  });
+
+  // point a
+  ctx.fillStyle="#3b5ccc";
+  ctx.beginPath();ctx.arc(sx(p.a,p,W),sy(p.fa,p,H),5,0,Math.PI*2);ctx.fill();
+
+  // labels
+  ctx.fillStyle="#6d7280";ctx.font="12px system-ui";
+  ctx.fillText(`a = ${p.a}`, sx(p.a,p,W)+8, Math.min(H-10,sy(p.fa,p,H)+20));
+  ctx.fillText(`ε = ${eps.toFixed(2)}`, 10, Math.max(16,sy(p.fa+eps,p,H)-6));
+  ctx.fillText(`δ = ${delta.toFixed(3)}`, Math.min(W-90,xR+6), 18);
+
+  if(resultPoint){
+    const X=sx(resultPoint.x,p,W),Y=sy(resultPoint.y,p,H);
+    ctx.fillStyle="#111";
+    ctx.beginPath();ctx.arc(X,Y,6,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#111";ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(X,Y);ctx.lineTo(sx(p.a,p,W),Y);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(X,Y);ctx.lineTo(X,sy(p.fa,p,H));ctx.stroke();
+    ctx.fillStyle="#111";
+    ctx.fillText(`x ≈ ${resultPoint.x.toFixed(3)}`, Math.min(W-100,X+8), Math.max(16,Y-10));
+  }
+}
+
+setupGame();
+requestAnimationFrame(fitCanvas);
+</script>
+</body>
+</html>
