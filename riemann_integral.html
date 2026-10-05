@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>リーマン積分をつくる | さわる数学</title>
+<style>
+:root{--bg:#f5f7fa;--ink:#182c3c;--muted:#607382;--line:#d9e2e8;--blue:#315ac5;--green:#167667;--orange:#b77213}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.75}header,main,footer{max-width:1180px;margin:auto;padding:24px}header{padding-bottom:12px}.brand{color:var(--green);font-size:14px;font-weight:750;letter-spacing:.1em}h1{font-size:clamp(28px,4vw,44px);line-height:1.3;margin:12px 0}h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:0 0 6px}p{margin:8px 0}.muted,.small{color:var(--muted)}.small{font-size:13px}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:20px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}.pad{padding:20px}.controls{display:grid;gap:16px}label{display:block;font-size:14px;font-weight:650}select,button,input{font:inherit}select{width:100%;background:white;border:1px solid var(--line);border-radius:9px;padding:9px;color:var(--ink)}button{border:1px solid var(--line);background:#eef3fa;color:var(--ink);padding:8px 12px;border-radius:9px;cursor:pointer;font-size:14px;font-weight:650}button:disabled{opacity:.45;cursor:default}button:hover:not(:disabled){background:#dfe9f8}button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #7e9deb;outline-offset:3px}input[type=range]{width:100%;accent-color:var(--blue)}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.spread{justify-content:space-between}.pill{background:#edf5f3;padding:4px 10px;border-radius:20px;font-size:13px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}.stat{padding:12px 6px;background:#f6f8fb;border-radius:10px;text-align:center;font-size:13px}.stat strong{display:block;font-size:22px;font-variant-numeric:tabular-nums}.lower{color:var(--green)}.upper{color:var(--orange)}.sample{color:var(--blue)}canvas{display:block;width:100%;height:350px;touch-action:pan-y}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px}.swatch{display:inline-block;width:11px;height:11px;margin-right:5px}.note{padding:12px 14px;background:#f0f5fb;border-radius:10px;font-size:14px}.result{margin-top:16px;padding:16px;border-radius:12px;background:#fff7e9;border:1px solid #edcf9c}.result.good{background:#edf8f3;border-color:#a2d7be}.result h3{font-size:17px}.equation{padding:13px;background:#f5f7fb;border-radius:10px;text-align:center;font-family:Georgia,"Times New Roman",serif;font-size:19px;overflow-wrap:anywhere}.definition{margin-top:22px}.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:16px}.steps>div{border-left:3px solid #a1b5df;padding-left:14px}details{margin-top:16px}summary{cursor:pointer;font-weight:700}.interval{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}.symbolic{background:#fff7e9;border:1px solid #edcf9c;padding:12px;font-size:13px;margin-bottom:12px}[hidden]{display:none!important}footer{font-size:13px;color:var(--muted)}a{color:var(--blue)}@media(max-width:850px){.layout,.steps{grid-template-columns:1fr}header,main,footer{padding:16px}.stats strong{font-size:19px}canvas{height:300px}}@media(prefers-reduced-motion:no-preference){button{transition:background .15s}}
+</style>
+</head>
+<body>
+<header><div class="brand">さわる数学 / 積分</div><h1>リーマン積分をつくる</h1><p class="muted">長方形の高さを変えても、同じ値に近づく？ 分割・代表点・誤差を動かして、定義を確かめよう。</p></header>
+<main>
+<div class="layout">
+<section class="card" aria-label="グラフと計算結果">
+<div class="pad">
+<div class="row spread"><h2 id="functionTitle"></h2><span class="pill">積分区間 [0, 1]</span></div>
+<p id="functionNote" class="small"></p>
+<div id="symbolicNote" class="symbolic" hidden>これは模式図です。有理数の点も無理数の点も、どんな小区間にも存在します。有限個の画素では実際のグラフを描けないので、y=0 と y=1 の両方に点があることを破線で表します。有理数・無理数の区別は数値の丸めで判定せず、数学的な性質を使っています。</div>
+</div>
+<canvas id="graph" role="img" aria-label="関数、分割、下和・上和と代表点の長方形"></canvas>
+<div class="pad">
+<div class="legend"><span><i class="swatch" style="background:#167667"></i>下和の長方形</span><span><i class="swatch" style="background:#edc17b"></i>上和と下和の差</span><span><i class="swatch" style="background:#315ac5"></i>代表点の長方形（青枠）</span></div>
+<div class="stats" aria-live="polite"><div class="stat lower">下和 L(P)<strong id="lowerValue"></strong></div><div class="stat sample">リーマン和 S(P, ξ)<strong id="sumValue"></strong></div><div class="stat upper">上和 U(P)<strong id="upperValue"></strong></div></div>
+<div class="equation">L(P) ≤ S(P, ξ) ≤ U(P)</div>
+<p class="small">各区間で「最小の高さ ≤ 代表点の高さ ≤ 最大の高さ」。幅を掛けて足しても、この大小関係は保たれます。x軸より下の長方形は負の寄与です。</p>
+<div class="interval"><label for="intervalRange">1つの小区間を調べる：<span id="intervalLabel"></span></label><input id="intervalRange" type="range" min="1" max="4" value="1" step="1"><div id="intervalDetail" class="small"></div></div>
+</div></section>
+<aside class="card pad"><h2>動かして確かめる</h2><div class="controls">
+<div><label for="functionSelect">1. 関数を選ぶ</label><select id="functionSelect"><option value="square">x² — 連続な関数</option><option value="sine">sin(πx) — 山形の関数</option><option value="signed">x − 1/2 — 正と負の寄与</option><option value="step">段差関数 — 不連続でも積分できる？</option><option value="spike">1点だけ高さ1 — 積分値はどうなる？</option><option value="dirichlet">有理数なら1、無理数なら0 — 積分できない例</option></select></div>
+<div><label for="partitionSelect">2. 分割のしかた</label><select id="partitionSelect"><option value="uniform">等分割：xᵢ = i/n</option><option value="graded">不等分割：xᵢ = (i/n)²</option></select></div>
+<div><label for="countRange">小区間の数 n = <span id="countValue">4</span></label><input id="countRange" type="range" min="1" max="512" step="1" value="4"><div class="row"><button id="halveBtn">半分にする</button><button id="doubleBtn">2倍に細分する</button></div><p class="small">分割の幅 ‖P‖ = max Δxᵢ = <b id="meshValue"></b><br>定義で小さくするのは「最も広い小区間の幅」です。表示は最大512区間です。</p></div>
+<div id="ordinaryTags"><label for="tagSelect">3. 代表点 ξᵢ の選び方</label><select id="tagSelect"><option value="left">左端</option><option value="middle" selected>中央</option><option value="right">右端</option><option value="random">各区間でランダム</option></select><button id="resampleBtn" style="margin-top:8px" hidden>代表点を選び直す</button></div>
+<div id="symbolicTags" hidden><label for="rationalSelect">3. 代表点の種類（模式的に選択）</label><select id="rationalSelect"><option value="rational">全区間で有理数を選ぶ → 高さ1</option><option value="irrational">全区間で無理数を選ぶ → 高さ0</option><option value="alternating">有理数と無理数を交互に選ぶ</option></select></div>
+<div><label for="epsilonSelect">4. 許したい誤差 ε</label><select id="epsilonSelect"><option value="0.2">0.2</option><option value="0.1" selected>0.1</option><option value="0.05">0.05</option><option value="0.01">0.01</option></select></div>
+</div><div id="result" class="result" aria-live="polite"></div><details><summary>この関数で、どこまで言える？</summary><div id="proof" class="small"></div></details><button id="resetBtn" style="margin-top:16px">この関数で最初から</button></aside>
+</div>
+<section class="card pad definition"><h2>操作と、定義をつなぐ</h2><div class="steps"><div><h3>① 分割を決める</h3><p>0=x₀&lt;x₁&lt;…&lt;xₙ=1 と分け、幅を Δxᵢ=xᵢ−xᵢ₋₁ とします。分割 P は、境目の点を集めたものです。</p></div><div><h3>② 代表点を選ぶ</h3><p>各小区間 [xᵢ₋₁,xᵢ] の中から ξᵢ を選びます。高さ f(ξᵢ)、幅 Δxᵢ の符号付き面積を足したものがリーマン和です。</p><div class="equation">S(P, ξ) = Σ f(ξᵢ) Δxᵢ</div></div><div><h3>③ 選び方によらない極限へ</h3><p>分割の幅を十分小さくすると、<b>どんな分割でも、どんな代表点でも</b>和が同じ値 I に近づく。この I をリーマン積分と呼びます。</p></div></div>
+<details open><summary>リーマン積分の定義（有界関数 f : [0,1] → ℝ）</summary><p>ある実数 I が存在し、任意の ε&gt;0 に対して、ある δ&gt;0 を選ぶことができて、<b>‖P‖&lt;δ を満たすすべての分割 P と、すべての代表点の選び方 ξ</b>について、次が成り立つとき、f はリーマン積分可能です。</p><div class="equation">|S(P, ξ) − I| &lt; ε</div><p class="small">ε → δ → 任意の P と ξ、という順序が大切です。δ は ε に応じて決めますが、後から選ばれる分割や代表点には依存させません。ここでの δ は分割の幅に対する条件です。</p></details>
+<details><summary>上和・下和で確かめる方法（ダルブーの判定条件）</summary><p>各小区間で mᵢ=inf f、Mᵢ=sup f とし、L(P)=ΣmᵢΔxᵢ、U(P)=ΣMᵢΔxᵢ と定めます。inf・sup は下限・上限のことで、実際にその高さを取るとは限りません。</p><p>有界関数がリーマン積分可能であることは、<b>どんな ε&gt;0 に対しても U(P)−L(P)&lt;ε となる分割 P が存在する</b>ことと同値です。積分可能なら L(P)≤I≤U(P) です。</p><p>既存の分割点を残したまま細分すると、下和は減らず、上和は増えません。「2倍に細分する」はこの操作です。スライダーで分割数を自由に変えた場合は、以前の分割点が残るとは限りません。</p></details>
+<div class="note" style="margin-top:16px"><b>試してみよう：</b>まず x² で代表点を左端・右端に切り替え、分割を細かくして比べましょう。次に「1点だけ高さ1」と「有理数なら1」を比較してください。不連続な点があることだけでは、積分できるかどうかは決まりません。</div>
+</section>
+</main><footer>さわる数学 · <a href="epsilon_delta_challenge.html">ε–δチャレンジへ</a></footer>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const examples={
+ square:{title:'f(x) = x²',note:'同じ分割でも、長方形の高さの選び方で和は変わります。',fx:x=>x*x,bounds:(a,b)=>[a*a,b*b],integral:1/3,c:2,proof:'[0,1] では |x²−y²|≤2|x−y| です。各区間の高さの差は 2Δxᵢ 以下なので、U−L≤2Σ(Δxᵢ)²≤2‖P‖。任意の ε>0 に対して δ=ε/2 とすれば、‖P‖<δ のすべての分割で U−L<ε です。'},
+ sine:{title:'f(x) = sin(πx)',note:'区間の途中に頂点がある場合、端点の値だけでは上和を計算できません。',fx:x=>Math.sin(Math.PI*x),bounds:(a,b)=>[Math.min(Math.sin(Math.PI*a),Math.sin(Math.PI*b)),a<=.5&&b>=.5?1:Math.max(Math.sin(Math.PI*a),Math.sin(Math.PI*b))],integral:2/Math.PI,c:Math.PI,proof:'|sin(πx)−sin(πy)|≤π|x−y| より、U−L≤π‖P‖。δ=ε/π とすれば、どんな分割でも ‖P‖<δ なら U−L<ε です。'},
+ signed:{title:'f(x) = x − 1/2',note:'x軸より下では f(ξᵢ)Δxᵢ は負になります。積分は面積の絶対値の合計ではありません。',fx:x=>x-.5,bounds:(a,b)=>[a-.5,b-.5],integral:0,c:1,proof:'各区間の高さの差は Δxᵢ なので、U−L=Σ(Δxᵢ)²≤‖P‖。δ=ε とすれば十分です。正と負の寄与が打ち消し合い、積分値は 0 になります。'},
+ step:{title:'f(x) = 0 (x<1/2), 1 (x≥1/2)',note:'不連続なのは x=1/2。段差を含む区間を狭めると、上和と下和の差も小さくなります。',fx:x=>x<.5?0:1,bounds:(a,b)=>[a<.5?0:1,b<.5?0:1],integral:.5,c:2,proof:'上下の高さが異なるのは、x=1/2 を含む小区間だけです。そのような区間は高々2つで、高さの差は高々1。したがって U−L≤2‖P‖ で、δ=ε/2 とすれば十分です。不連続な点が1つあっても、積分可能です。'},
+ spike:{title:'f(x) = 1 (x=1/2), 0 (x≠1/2)',note:'小区間は両端を含みます。x=1/2 が分割点なら、隣り合う2つの区間の上限が1になります。',fx:x=>x===.5?1:0,bounds:(a,b)=>[0,a<=.5&&b>=.5?1:0],integral:0,c:2,proof:'下和は常に 0。上限が1になる区間は高々2つなので、0≤U≤2‖P‖。δ=ε/2 とすれば任意の代表点について 0≤S<ε となり、積分値は 0 です。1点だけの関数値は積分値を変えません。'},
+ dirichlet:{title:'f(x) = 1 (x∈ℚ), 0 (x∉ℚ)',note:'有理数と無理数は、どんな短い区間にも両方あります。',bounds:()=>[0,1],symbolic:true,proof:'すべての小区間で下限0、上限1なので、分割によらず L=0、U=1 です。さらに全区間で有理数を選ぶと S=1、無理数を選ぶと S=0。同じ I から両方の誤差を ε=1/4 未満にすることはできません。どれほど分割の幅を小さくしても、定義を満たす I は存在しません。'}
+};
+let n=4, selectedInterval=0, randomTags=[], data=null;
+const canvas=$('graph'),ctx=canvas.getContext('2d');
+const fmt=x=>Math.abs(x)<1e-12?'0':Number(x.toFixed(6)).toString();
+function calculate(example,count,partition,tag,rational,tags){
+ const points=Array.from({length:count+1},(_,i)=>partition==='graded'?(i/count)**2:i/count);
+ let lower=0,upper=0,sum=0,mesh=0;
+ const cells=[];
+ for(let i=0;i<count;i++){
+  const a=points[i],b=points[i+1],width=b-a,[lo,hi]=example.bounds(a,b);
+  const ratio=tag==='left'?0:tag==='right'?1:tag==='random'?(tags[i]??.5):.5;
+  const x=a+ratio*width;
+  const y=example.symbolic?(rational==='rational'?1:rational==='irrational'?0:i%2===0?1:0):example.fx(x);
+  cells.push({a,b,width,lo,hi,x,y});lower+=lo*width;upper+=hi*width;sum+=y*width;mesh=Math.max(mesh,width);
+ }
+ return {cells,lower,upper,sum,mesh,gap:upper-lower};
+}
+function reroll(){randomTags=Array.from({length:n},()=>Math.random());}
+function update(){
+ const e=examples[$('functionSelect').value],eps=Number($('epsilonSelect').value);
+ data=calculate(e,n,$('partitionSelect').value,$('tagSelect').value,$('rationalSelect').value,randomTags);
+ selectedInterval=Math.min(selectedInterval,n-1);
+ $('functionTitle').textContent=e.title;$('functionNote').textContent=e.note;
+ $('ordinaryTags').hidden=!!e.symbolic;$('symbolicTags').hidden=!e.symbolic;$('symbolicNote').hidden=!e.symbolic;
+ $('resampleBtn').hidden=$('tagSelect').value!=='random';
+ $('countRange').value=n;$('countValue').textContent=n;$('meshValue').textContent=fmt(data.mesh);
+ $('halveBtn').disabled=n===1;$('doubleBtn').disabled=n>256;
+ $('lowerValue').textContent=fmt(data.lower);$('upperValue').textContent=fmt(data.upper);$('sumValue').textContent=fmt(data.sum);
+ $('intervalRange').max=n;$('intervalRange').value=selectedInterval+1;
+ // Treat rounding noise at equality as equality, not a strict success.
+ const pass=data.gap<eps-1e-12;
+ $('result').className='result'+(pass?' good':'');
+ $('result').innerHTML=`<h3>上和 − 下和 = ${fmt(data.gap)}</h3>`+(e.symbolic?
+ `<p><b>細かくしても、この差は 1 のまま。</b>ε=${eps} より小さくできません。代表点を有理数にするか無理数にするかで、和が 1 と 0 に分かれるため、積分できません。</p>`:
+ pass?`<p><b>この分割では、差が ε=${eps} より小さくなりました。</b></p><p>どの代表点を選んでも S は [${fmt(data.lower)}, ${fmt(data.upper)}] の中です。積分値 I もこの間にあるので、<b>|S−I|≤U−L&lt;ε</b>。特定の代表点でたまたま近いのではなく、どの選び方でも誤差を抑えられます。</p>`:
+ `<p>まだ U−L&lt;ε=${eps} にはなっていません。分割を細かくして、代表点を変えたときの和の違いを比べましょう。</p><p>今のリーマン和が積分値に近くても、それだけで「すべての代表点」での近さは保証できません。</p>`);
+ if(!e.symbolic){
+  $('result').innerHTML+=`<p class="small">参考：積分値 I=${fmt(e.integral)}、今の代表点での |S−I|=${fmt(Math.abs(data.sum-e.integral))}。</p><p class="small">1つの ε での確認だけでは積分可能性の証明は完了しません。どんな ε&gt;0 に対しても可能である理由は、下の解説で確認できます。</p>`;
+ }
+ $('proof').textContent=e.proof+(e.symbolic?'':` 今回なら ‖P‖<${fmt(eps/e.c)} とすれば十分です（必要条件ではありません）。`);
+ updateInterval();draw();
+}
+function updateInterval(){
+ const c=data.cells[selectedInterval],e=examples[$('functionSelect').value];
+ $('intervalLabel').textContent=`${selectedInterval+1} / ${n}`;
+ $('intervalDetail').innerHTML=`[${fmt(c.a)}, ${fmt(c.b)}]、幅 Δx=${fmt(c.width)}<br>下限 m=${fmt(c.lo)}、上限 M=${fmt(c.hi)}<br>`+(e.symbolic?`代表点は${c.y===1?'有理数':'無理数'}（横位置は模式表示）、f(ξ)=${c.y}`:`代表点 ξ=${fmt(c.x)}、f(ξ)=${fmt(c.y)}`)+`<br>この長方形の寄与：f(ξ)Δx=${fmt(c.y*c.width)}`;
+}
+function draw(){
+ if(!data)return;
+ const e=examples[$('functionSelect').value],W=canvas.clientWidth,H=canvas.clientHeight;
+ const ratio=window.devicePixelRatio||1;canvas.width=Math.round(W*ratio);canvas.height=Math.round(H*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);
+ const left=48,right=W-24,top=22,bottom=H-34,ymin=-.62,ymax=1.22;
+ const sx=x=>left+x*(right-left),sy=y=>bottom-(y-ymin)/(ymax-ymin)*(bottom-top);
+ ctx.clearRect(0,0,W,H);ctx.font='12px system-ui';
+ for(const y of [-.5,0,.5,1]){ctx.strokeStyle=y===0?'#8797a3':'#e7edf1';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(left,sy(y));ctx.lineTo(right,sy(y));ctx.stroke();ctx.fillStyle='#607382';ctx.fillText(fmt(y),8,sy(y)+4);}
+ for(const x of [0,.25,.5,.75,1]){ctx.fillStyle='#607382';ctx.fillText(fmt(x),sx(x)-8,H-10);}
+ ctx.fillText('x',W-12,H-10);ctx.fillText('y',13,16);
+ const selected=data.cells[selectedInterval];ctx.fillStyle='rgba(49,90,197,.055)';ctx.fillRect(sx(selected.a),top,sx(selected.b)-sx(selected.a),bottom-top);
+ for(const c of data.cells){
+  const x=sx(c.a),w=sx(c.b)-x;
+  ctx.fillStyle='rgba(22,118,103,.19)';ctx.fillRect(x,Math.min(sy(0),sy(c.lo)),w,Math.abs(sy(c.lo)-sy(0)));
+  ctx.fillStyle='rgba(237,193,123,.40)';ctx.fillRect(x,sy(c.hi),w,sy(c.lo)-sy(c.hi));
+  ctx.strokeStyle='rgba(183,114,19,.65)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,sy(c.hi));ctx.lineTo(x+w,sy(c.hi));ctx.stroke();
+  ctx.strokeStyle='rgba(22,118,103,.8)';ctx.beginPath();ctx.moveTo(x,sy(c.lo));ctx.lineTo(x+w,sy(c.lo));ctx.stroke();
+  ctx.strokeStyle='rgba(49,90,197,.6)';ctx.lineWidth=1;ctx.strokeRect(x,Math.min(sy(0),sy(c.y)),w,Math.abs(sy(c.y)-sy(0)));
+  ctx.fillStyle='#315ac5';ctx.beginPath();ctx.arc(sx(c.x),sy(c.y),n>32?1.5:3,0,2*Math.PI);ctx.fill();
+ }
+ ctx.strokeStyle='#182c3c';ctx.lineWidth=2;
+ if(e.symbolic){ctx.setLineDash([2,5]);for(const y of [0,1]){ctx.beginPath();ctx.moveTo(left,sy(y));ctx.lineTo(right,sy(y));ctx.stroke();}ctx.setLineDash([]);}
+ else if(['step','spike'].includes($('functionSelect').value)){
+  const step=$('functionSelect').value==='step';
+  ctx.beginPath();ctx.moveTo(sx(0),sy(0));ctx.lineTo(sx(.5),sy(0));ctx.moveTo(sx(.5),sy(step?1:0));ctx.lineTo(sx(1),sy(step?1:0));ctx.stroke();
+  ctx.beginPath();ctx.arc(sx(.5),sy(0),5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(sx(.5),sy(1),4,0,Math.PI*2);ctx.fillStyle='#182c3c';ctx.fill();
+ }else{ctx.beginPath();for(let i=0;i<=500;i++){const x=i/500;i?ctx.lineTo(sx(x),sy(e.fx(x))):ctx.moveTo(sx(x),sy(e.fx(x)));}ctx.stroke();}
+ ctx.strokeStyle='#315ac5';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx(selected.a),bottom+3);ctx.lineTo(sx(selected.b),bottom+3);ctx.stroke();
+}
+$('functionSelect').addEventListener('change',()=>{selectedInterval=0;update();});
+for(const id of ['partitionSelect','tagSelect','rationalSelect','epsilonSelect'])$(id).addEventListener('change',update);
+$('countRange').addEventListener('input',()=>{n=Number($('countRange').value);reroll();update();});
+$('doubleBtn').addEventListener('click',()=>{n=Math.min(512,n*2);reroll();update();});
+$('halveBtn').addEventListener('click',()=>{n=Math.max(1,Math.floor(n/2));reroll();update();});
+$('resampleBtn').addEventListener('click',()=>{reroll();update();});
+$('intervalRange').addEventListener('input',()=>{selectedInterval=Number($('intervalRange').value)-1;updateInterval();draw();});
+$('resetBtn').addEventListener('click',()=>{n=4;selectedInterval=0;$('partitionSelect').value='uniform';$('tagSelect').value='middle';$('rationalSelect').value='rational';$('epsilonSelect').value='0.1';reroll();update();});
+window.addEventListener('resize',draw);reroll();update();
+</script>
+</body>
+</html>
