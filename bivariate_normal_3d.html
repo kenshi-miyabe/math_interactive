@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2次元正規分布をさわる | さわる数学</title>
+<style>
+:root{--bg:#f3f6f8;--card:#fff;--ink:#14262f;--muted:#60727a;--line:#d6e0e4;--teal:#087b78;--teal-dark:#075b59;--blue:#315fab;--warm:#e7a63f;--shadow:0 16px 42px rgba(20,48,58,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;line-height:1.65}header,main,footer{max-width:1180px;margin:auto;padding-left:22px;padding-right:22px}header{padding-top:28px;padding-bottom:16px}.brand{color:var(--teal-dark);font-size:13px;font-weight:700;letter-spacing:.12em}h1{font-size:clamp(29px,4vw,45px);line-height:1.25;margin:7px 0 5px;letter-spacing:-.025em}h2{font-size:18px;margin:0}.subtitle{color:var(--muted);margin:0}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(310px,.8fr);gap:18px;align-items:start}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}.plot-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line)}.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}canvas{display:block;width:100%;height:510px;cursor:grab;touch-action:none;background:linear-gradient(180deg,#f9fcfd 0%,#e9f2f3 100%)}canvas.dragging{cursor:grabbing}.plot-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}button{font:inherit;border:1px solid var(--line);background:#f4f8f9;color:var(--ink);border-radius:9px;padding:6px 10px;cursor:pointer}button:hover{background:#e8f1f2}button:focus-visible,input:focus-visible{outline:3px solid #8bc9c6;outline-offset:2px}.controls{padding:18px}.group{padding-bottom:17px;margin-bottom:17px;border-bottom:1px solid var(--line)}.group:last-child{border:0;margin-bottom:0;padding-bottom:0}.group-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;font-size:14px;font-weight:700}.control{margin:12px 0}.label-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}.value{font-variant-numeric:tabular-nums;font-weight:700;color:var(--teal-dark);background:#eaf5f4;border-radius:7px;padding:1px 7px;min-width:48px;text-align:right}input[type=range]{width:100%;margin:7px 0 0;accent-color:var(--teal)}.ticks{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:-3px}.matrix-wrap{background:#f5f8f9;border-radius:13px;padding:13px 10px;text-align:center}.matrix-label{font-size:12px;color:var(--muted);margin-bottom:7px}.matrix{display:inline-grid;grid-template-columns:auto repeat(2,minmax(70px,auto)) auto;align-items:center;column-gap:8px;font-family:Georgia,"Times New Roman",serif;font-size:18px;font-variant-numeric:tabular-nums}.bracket{font-size:50px;font-weight:300;line-height:.9;color:var(--muted);transform:scaleX(.6)}.matrix span:not(.bracket){padding:3px 6px}.formula{font-family:Georgia,"Times New Roman",serif;font-size:15px;text-align:center;overflow-wrap:anywhere}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.stat{border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;font-size:11px;color:var(--muted)}.stat strong{display:block;color:var(--ink);font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}.tip{margin:0;color:var(--muted);font-size:12px}footer{padding-top:24px;padding-bottom:30px;color:var(--muted);font-size:13px}a{color:var(--blue)}@media(max-width:850px){.layout{grid-template-columns:1fr}canvas{height:430px}header,main,footer{padding-left:14px;padding-right:14px}}@media(max-width:440px){canvas{height:350px}.plot-head{align-items:flex-start}.plot-foot{align-items:flex-start;flex-direction:column}.matrix{grid-template-columns:auto repeat(2,minmax(60px,auto));column-gap:4px}.bracket{font-size:44px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">さわる数学 / 確率・統計</div>
+  <h1>2次元正規分布をさわる</h1>
+  <p class="subtitle">平均で山の位置を、分散と相関係数で広がり方・傾きを変えてみよう。</p>
+</header>
+<main>
+  <div class="layout">
+    <section class="card" aria-label="2次元正規分布の3Dグラフ">
+      <div class="plot-head"><h2>確率密度 f(x, y)</h2><span class="badge">ドラッグで回転</span></div>
+      <canvas id="densityCanvas" role="img" aria-label="2次元正規分布の確率密度を表す3D曲面"></canvas>
+      <div class="plot-foot"><span>ドラッグ：回転　ホイール：拡大・縮小</span><button id="resetView" type="button">視点を戻す</button></div>
+    </section>
+    <aside class="card controls" aria-label="分布のパラメータ">
+      <div class="group">
+        <div class="group-title"><span>期待値</span><span>μ = (<span id="muVector">0.0, 0.0</span>)</span></div>
+        <div class="control"><div class="label-row"><label for="muX">μ<sub>x</sub></label><output class="value" id="muXValue">0.0</output></div><input id="muX" type="range" min="-3" max="3" step="0.1" value="0"><div class="ticks"><span>−3</span><span>0</span><span>3</span></div></div>
+        <div class="control"><div class="label-row"><label for="muY">μ<sub>y</sub></label><output class="value" id="muYValue">0.0</output></div><input id="muY" type="range" min="-3" max="3" step="0.1" value="0"><div class="ticks"><span>−3</span><span>0</span><span>3</span></div></div>
+      </div>
+      <div class="group">
+        <div class="group-title"><span>分散</span><span>山の広がり</span></div>
+        <div class="control"><div class="label-row"><label for="varX">σ<sub>x</sub>²</label><output class="value" id="varXValue">1.00</output></div><input id="varX" type="range" min="0.2" max="2.5" step="0.05" value="1"><div class="ticks"><span>0.2</span><span>1.35</span><span>2.5</span></div></div>
+        <div class="control"><div class="label-row"><label for="varY">σ<sub>y</sub>²</label><output class="value" id="varYValue">1.00</output></div><input id="varY" type="range" min="0.2" max="2.5" step="0.05" value="1"><div class="ticks"><span>0.2</span><span>1.35</span><span>2.5</span></div></div>
+      </div>
+      <div class="group">
+        <div class="group-title"><label for="rho">相関係数 ρ</label><output class="value" id="rhoValue">0.00</output></div>
+        <input id="rho" type="range" min="-0.95" max="0.95" step="0.05" value="0"><div class="ticks"><span>−0.95</span><span>0</span><span>0.95</span></div>
+      </div>
+      <div class="group">
+        <div class="matrix-wrap" aria-live="polite">
+          <div class="matrix-label">分散共分散行列 Σ</div>
+          <div class="matrix" aria-label="分散共分散行列">
+            <span class="bracket">[</span><span id="m11">1.000</span><span id="m12">0.000</span>
+            <span class="bracket">]</span><span></span><span id="m21">0.000</span><span id="m22">1.000</span><span></span>
+          </div>
+        </div>
+        <div class="stats"><div class="stat">共分散<strong id="covValue">0.000</strong></div><div class="stat">頂点の密度<strong id="peakValue">0.1592</strong></div></div>
+      </div>
+      <div class="group formula">f(x,y) = <span id="formulaText">1 / (2π√|Σ|) · exp(−½(z−μ)ᵀΣ⁻¹(z−μ))</span></div>
+      <p class="tip">ρ が 0 から離れるほど、山のすそは斜め方向に伸びます。正なら右上がり、負なら右下がりです。</p>
+    </aside>
+  </div>
+</main>
+<footer>さわる数学 · 確率・統計</footer>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('densityCanvas'),ctx=canvas.getContext('2d');
+const controls=['muX','muY','varX','varY','rho'];
+const initialView={yaw:0,pitch:.42,zoom:1};
+const view={...initialView};
+let params=null,dragging=false,lastX=0,lastY=0;
+
+function readParams(){
+  return {muX:+$('muX').value,muY:+$('muY').value,varX:+$('varX').value,varY:+$('varY').value,rho:+$('rho').value};
+}
+function density(x,y,p){
+  const sx=Math.sqrt(p.varX),sy=Math.sqrt(p.varY),one=1-p.rho*p.rho;
+  const dx=x-p.muX,dy=y-p.muY;
+  const q=dx*dx/p.varX-2*p.rho*dx*dy/(sx*sy)+dy*dy/p.varY;
+  return Math.exp(-q/(2*one))/(2*Math.PI*sx*sy*Math.sqrt(one));
+}
+function signed(n,digits){return Math.abs(n)<.0000001?(0).toFixed(digits):n.toFixed(digits)}
+function updateLabels(){
+  params=readParams();
+  const cov=params.rho*Math.sqrt(params.varX*params.varY);
+  const det=params.varX*params.varY-cov*cov;
+  $('muXValue').value=params.muX.toFixed(1);$('muYValue').value=params.muY.toFixed(1);
+  $('varXValue').value=params.varX.toFixed(2);$('varYValue').value=params.varY.toFixed(2);$('rhoValue').value=signed(params.rho,2);
+  $('muVector').textContent=`${params.muX.toFixed(1)}, ${params.muY.toFixed(1)}`;
+  $('m11').textContent=params.varX.toFixed(3);$('m12').textContent=signed(cov,3);$('m21').textContent=signed(cov,3);$('m22').textContent=params.varY.toFixed(3);
+  $('covValue').textContent=signed(cov,3);$('peakValue').textContent=(1/(2*Math.PI*Math.sqrt(det))).toFixed(4);
+  draw();
+}
+function project(x,y,z,W,H){
+  const cos=Math.cos(view.yaw),sin=Math.sin(view.yaw);
+  const rotatedX=x*cos-y*sin,rotatedY=x*sin+y*cos;
+  const scale=Math.min(W/25,H/12)*view.zoom;
+  return {x:W*.58+(rotatedX-.55*rotatedY)*scale,y:H*.79-Math.sin(view.pitch)*rotatedY*scale-z*H*.50*Math.cos(view.pitch),depth:rotatedY};
+}
+function drawLine(points,stroke,width=1){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}
+function drawArrow(from,to,color){
+  const angle=Math.atan2(to.y-from.y,to.x-from.x),size=7;
+  drawLine([from,to],color,1.7);ctx.beginPath();ctx.moveTo(to.x,to.y);ctx.lineTo(to.x-size*Math.cos(angle-.48),to.y-size*Math.sin(angle-.48));ctx.lineTo(to.x-size*Math.cos(angle+.48),to.y-size*Math.sin(angle+.48));ctx.closePath();ctx.fillStyle=color;ctx.fill();
+}
+function draw(){
+  if(!params)params=readParams();
+  const W=canvas.clientWidth,H=canvas.clientHeight,dpr=window.devicePixelRatio||1;
+  canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  const limit=7,ringCount=W<500?18:24,sectorCount=W<500?42:56;
+  const floor=[project(-limit,-limit,0,W,H),project(limit,-limit,0,W,H),project(limit,limit,0,W,H),project(-limit,limit,0,W,H)];
+  ctx.beginPath();floor.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle='rgba(255,255,255,.54)';ctx.fill();ctx.strokeStyle='rgba(55,83,92,.32)';ctx.stroke();
+  for(let t=-6;t<=6;t+=2){drawLine([project(t,-limit,0,W,H),project(t,limit,0,W,H)],'rgba(65,99,107,.13)');drawLine([project(-limit,t,0,W,H),project(limit,t,0,W,H)],'rgba(65,99,107,.13)')}
+  const sx=Math.sqrt(params.varX),sy=Math.sqrt(params.varY),rhoScale=Math.sqrt(1-params.rho*params.rho);
+  const rings=[];
+  for(let r=0;r<=ringCount;r++){
+    const radius=3.5*r/ringCount,row=[];
+    for(let s=0;s<sectorCount;s++){
+      const angle=2*Math.PI*s/sectorCount,u=radius*Math.cos(angle),v=radius*Math.sin(angle);
+      const x=params.muX+sx*u,y=params.muY+sy*(params.rho*u+rhoScale*v),z=Math.exp(-radius*radius/2);
+      row.push({...project(x,y,z,W,H),height:z});
+    }
+    rings.push(row);
+  }
+  const cells=[];
+  for(let s=0;s<sectorCount;s++){
+    const next=(s+1)%sectorCount;
+    cells.push({ps:[rings[0][0],rings[1][s],rings[1][next]],depth:(rings[1][s].depth+rings[1][next].depth)/2,z:.99});
+  }
+  for(let r=1;r<ringCount;r++)for(let s=0;s<sectorCount;s++){
+    const next=(s+1)%sectorCount,ps=[rings[r][s],rings[r+1][s],rings[r+1][next],rings[r][next]];
+    cells.push({ps,depth:ps.reduce((sum,p)=>sum+p.depth,0)/4,z:ps.reduce((sum,p)=>sum+p.height,0)/4});
+  }
+  cells.sort((a,b)=>b.depth-a.depth);
+  for(const cell of cells){
+    const light=78-cell.z*35;
+    ctx.beginPath();cell.ps.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
+    ctx.fillStyle=`hsl(${181+cell.z*19},72%,${light}%)`;ctx.fill();ctx.strokeStyle=`rgba(5,75,79,${.20+cell.z*.28})`;ctx.lineWidth=.65;ctx.stroke();
+  }
+  const axisColor='rgba(25,51,59,.72)';
+  drawArrow(project(-limit,0,0,W,H),project(limit,0,0,W,H),axisColor);drawArrow(project(0,-limit,0,W,H),project(0,limit,0,W,H),axisColor);
+  ctx.fillStyle='#29444d';ctx.font='600 12px system-ui';
+  const xLab=project(limit+.45,0,0,W,H),yLab=project(0,limit+.45,0,W,H);ctx.fillText('x',xLab.x-3,xLab.y+4);ctx.fillText('y',yLab.x-3,yLab.y-5);
+  ctx.font='11px system-ui';ctx.fillStyle='#5e7279';
+  [-6,-3,0,3,6].forEach(v=>{const a=project(v,0,0,W,H),b=project(0,v,0,W,H);ctx.fillText(String(v),a.x-5,a.y+14);if(v!==0)ctx.fillText(String(v),b.x+5,b.y+3)});
+  const mean=project(params.muX,params.muY,0,W,H),top=project(params.muX,params.muY,1,W,H);
+  ctx.setLineDash([4,4]);drawLine([mean,top],'rgba(231,166,63,.9)',1.5);ctx.setLineDash([]);ctx.beginPath();ctx.arc(mean.x,mean.y,4,0,Math.PI*2);ctx.fillStyle='#d18a1e';ctx.fill();
+  ctx.fillStyle='#7e5416';ctx.font='600 11px system-ui';ctx.fillText('μ',mean.x+7,mean.y-5);
+}
+controls.forEach(id=>$(id).addEventListener('input',updateLabels));
+$('resetView').addEventListener('click',()=>{Object.assign(view,initialView);draw()});
+canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId);canvas.classList.add('dragging')});
+canvas.addEventListener('pointermove',e=>{if(!dragging)return;view.yaw+=(e.clientX-lastX)*.009;view.pitch=Math.max(.16,Math.min(1.1,view.pitch+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY;draw()});
+canvas.addEventListener('pointerup',e=>{dragging=false;canvas.releasePointerCapture(e.pointerId);canvas.classList.remove('dragging')});
+canvas.addEventListener('pointercancel',()=>{dragging=false;canvas.classList.remove('dragging')});
+canvas.addEventListener('wheel',e=>{e.preventDefault();view.zoom=Math.max(.65,Math.min(1.55,view.zoom*(e.deltaY>0?.92:1.08)));draw()},{passive:false});
+window.addEventListener('resize',draw);updateLabels();
+</script>
+</body>
+</html>
