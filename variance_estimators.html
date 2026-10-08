@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>分散の推定をくらべる | さわる数学</title>
+<style>
+:root{--bg:#f5f7fa;--ink:#182c3c;--muted:#526675;--line:#d9e2e8;--blue:#315ac5;--orange:#b05b0c;--green:#167667}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.75}header,main,footer{max-width:1240px;margin:auto;padding:24px}header{padding-bottom:0}.brand{color:var(--green);font-size:14px;font-weight:700;letter-spacing:.1em}h1{font-size:clamp(27px,4vw,42px);line-height:1.35;margin:10px 0}h2{font-size:20px;margin:0 0 10px}h3{font-size:17px;margin:0}p{margin:8px 0}.muted,.small{color:var(--muted)}.small{font-size:13px}.card{background:white;border:1px solid var(--line);border-radius:16px;padding:20px}.setup{display:grid;grid-template-columns:1fr 1fr;gap:24px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}.wide{grid-column:1/-1}label{display:block;font-size:14px;font-weight:650}input,select,button{font:inherit}input[type=range]{width:100%;accent-color:var(--blue);min-height:30px}select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink)}button{padding:9px 14px;border:1px solid var(--line);background:#edf2f9;border-radius:8px;color:var(--ink);cursor:pointer}button:hover{background:#dfe9f8}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #7e9deb;outline-offset:3px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.spread{justify-content:space-between}.value{font-variant-numeric:tabular-nums}.section{margin-top:24px}.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;margin:12px 0}.key{display:inline-block;width:23px;height:10px;margin-right:6px}.blue{background:#315ac580;border:2px solid var(--blue)}.orange{background:#b05b0c40;border:2px solid var(--orange)}.truth{border-top:3px solid var(--ink);height:4px}.dash{border-top:2px dashed var(--blue);height:4px}.plots{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}.plot{min-width:0}canvas{width:100%;height:290px;display:block}#population{height:200px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}th,td{text-align:right;padding:7px 5px;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}th{font-weight:600}.note{background:#edf5f3;border-left:3px solid var(--green);padding:12px 16px;margin-top:16px}.explain{display:grid;grid-template-columns:1fr 1fr;gap:24px}.equation{background:#f5f7fb;padding:12px;border-radius:8px;font-family:Georgia,serif;font-size:20px;margin:10px 0;overflow-wrap:anywhere}details{margin-top:18px}summary{cursor:pointer;font-weight:650}a{color:var(--blue)}footer{font-size:13px}output{font-variant-numeric:tabular-nums}#status{min-height:24px}.check{font-weight:400} @media(max-width:850px){.setup,.plots,.explain{grid-template-columns:1fr}header,main,footer{padding:16px}.card{padding:16px}}@media(max-width:400px){.fields{grid-template-columns:1fr}.wide{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><div class="brand">さわる数学 / 確率・統計</div><h1>分散の推定をくらべる</h1><p class="muted">分母は n？ それとも n−1？ 標本を何度も取り直して、推定値の分布を見てみよう。</p></header>
+<main>
+<section class="card setup" aria-label="実験の設定">
+<div class="fields">
+<div class="wide"><label for="distribution">もとの分布（母集団）</label><select id="distribution"><option value="normal">正規分布</option><option value="exponential">指数分布</option><option value="uniform">一様分布</option><option value="bernoulli">ベルヌーイ分布（0 または 1）</option></select></div>
+<div id="parameter1"><label for="p1"><span id="p1label"></span> = <output id="p1value"></output></label><input id="p1" type="range"></div>
+<div id="parameter2"><label for="p2"><span id="p2label"></span> = <output id="p2value"></output></label><input id="p2" type="range"></div>
+<div><label for="n1">標本サイズ A：n = <output id="n1value">5</output></label><input id="n1" type="range" min="2" max="500" value="5" step="1"><div class="row"><button type="button" data-size="5">5</button><button type="button" data-size="30">30</button><button type="button" data-size="200">200</button></div></div>
+<div><label for="n2">標本サイズ B：n = <output id="n2value">100</output></label><input id="n2" type="range" min="2" max="500" value="100" step="1"><p class="small">A と B を同じ目盛りで比較します。</p></div>
+<div class="wide"><label for="trials">標本を取り直す回数 R = <output id="trialsvalue">5,000</output></label><input id="trials" type="range" min="1000" max="20000" step="1000" value="5000"></div>
+</div>
+<div><h2>母集団の分布</h2><p id="populationInfo" class="value"></p><canvas id="population" role="img" aria-label="母集団の確率密度または確率質量"></canvas><p id="populationNote" class="small"></p><div class="row"><button type="button" id="resample">新しい乱数で実験する</button></div><p id="status" class="small" role="status" aria-live="polite"></p></div>
+</section>
+<section class="card section">
+<h2>繰り返し得られる「分散の推定値」の分布</h2>
+<p class="small">1回の標本から2つの推定値を計算し、それぞれヒストグラムに集計します。山の位置は推定の偏り、広がりは推定値のばらつきを表します。</p>
+<div class="legend"><span><i class="key blue"></i>標本分散（分母 n）</span><span><i class="key orange"></i>不偏分散（分母 n−1）</span><span><i class="key truth"></i>真の分散 σ²</span><span><i class="key dash"></i>標本分散の期待値（理論）</span></div>
+<label class="check"><input type="checkbox" id="fullRange"> 外れた推定値まで横軸にすべて表示する</label>
+<p id="rangeNote" class="small"></p>
+<div class="plots">
+<div class="plot"><h3 id="titleA"></h3><canvas id="histA" role="img" aria-label="標本サイズAにおける分散の推定値のヒストグラム"></canvas><p id="tailA" class="small"></p><div class="table-wrap" id="statsA"></div></div>
+<div class="plot"><h3 id="titleB"></h3><canvas id="histB" role="img" aria-label="標本サイズBにおける分散の推定値のヒストグラム"></canvas><p id="tailB" class="small"></p><div class="table-wrap" id="statsB"></div></div>
+</div>
+<div id="finding" class="note" aria-live="polite"></div>
+<p class="small">表の「実験」は全 R 回の推定値から計算します（グラフの表示範囲外も含む）。SD は推定値の標準偏差、MSE は真の分散との差の二乗の平均です。値が小さいほど、その尺度での誤差が小さくなります。</p>
+</section>
+<section class="card section"><h2>なぜ n−1 で割るの？</h2><div class="explain"><div><h3>標本分散：少し小さめに推定する</h3><div class="equation">V = (1/n) Σᵢ₌₁ⁿ (Xᵢ − X̄)²</div><p>標本自身から求めた平均 X̄ を中心にするため、真の平均を中心に測る場合より、偏差平方和は平均的に小さくなります。</p><div class="equation">E[V] = ((n−1)/n) σ²</div></div><div><h3>不偏分散：繰り返した平均が真の値になる</h3><div class="equation">U = (1/(n−1)) Σᵢ₌₁ⁿ (Xᵢ − X̄)²</div><p>分母を n−1 にすると、この偏りが補正されます。同じ標本なら U = nV/(n−1) なので、分布全体が横方向に拡大されます。</p><div class="equation">E[U] = σ²</div></div></div>
+<div class="note"><b>不偏でも、毎回正確とは限りません。</b>不偏性は「何度も標本を取り直したときの平均」の性質です。最頻値や中央値が真の分散に一致するという意味ではありません。不偏分散は標本分散よりばらつきが大きく、MSE が常に小さいわけでもありません。</div>
+<details><summary>試してみよう</summary><ol><li>正規分布で A を n=2、B を n=200 にして、山の幅と期待値を比べる。</li><li>指数分布に切り替え、右に長い裾と大きなばらつきを観察する。</li><li>ベルヌーイ分布で p=0.05 にする。小さな標本では全員0になり、両方の分散が0になりやすい。</li><li>繰り返し回数 R を増やすと、実験の平均が理論の期待値に近づく。n を増やす操作との違いを比べる。</li></ol></details>
+<details><summary>数学的な条件・実験の仕組み</summary><p>独立同分布の標本 X₁,…,Xₙ と n≥2 を仮定します。このページの4つの分布はいずれも有限な4次モーメントを持ちます。両推定量は n が大きくなると真の分散に確率収束します。ここでは「標本分散」を分母 n、「不偏分散」を分母 n−1 と呼びます（文献によって呼称は異なります）。</p><p>各回に max(n<sub>A</sub>, n<sub>B</sub>) 個を生成し、それぞれ先頭 n 個を使います。A と B は標本を共有するため相関しますが、各ヒストグラムの周辺分布は正しい標本抽出に対応します。推定値の計算には数値的に安定な逐次更新を使います。</p><p>設定変更時は同じ乱数列で再計算します。「新しい乱数で実験する」で乱数の種を変更できます。曲線は母集団の理論分布、ヒストグラムはモンテカルロ実験の結果です。</p><p>正規母集団では (n−1)U/σ² は自由度 n−1 のカイ二乗分布に従います。したがって SD(U)=σ²√(2/(n−1))、SD(V)=σ²√(2(n−1))/n です。他の母集団では推定値の分布の形も変わります。</p></details>
+</section>
+</main><footer>さわる数学 · <a href="bivariate_normal_3d.html">2次元正規分布をさわる</a></footer>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const colors={sample:'#315ac5',unbiased:'#b05b0c',ink:'#182c3c',grid:'#e0e6ec',muted:'#526675'};
+const configurations={normal:[['平均 μ',-5,5,.1,0],['標準偏差 σ',.2,3,.1,1]],exponential:[['率 λ',.2,3,.1,1]],uniform:[['中心 c',-5,5,.1,0],['半幅 a',.2,5,.1,1]],bernoulli:[['成功確率 p',.05,.95,.01,.3]]};
+const fmt=x=>x===0?'0':Math.abs(x)<.001||Math.abs(x)>=10000?x.toExponential(2):Number(x.toPrecision(4)).toString();
+let seed=172903,experiment=null,timer=0;
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function model(kind,a,b){
+ if(kind==='normal')return{mean:a,variance:b*b,range:[a-4*b,a+4*b],density:x=>Math.exp(-.5*((x-a)/b)**2)/(b*Math.sqrt(2*Math.PI)),draw:r=>a+b*Math.sqrt(-2*Math.log(1-r()))*Math.cos(2*Math.PI*r()),note:'正規分布 N(μ, σ²)。横軸は μ±4σ の範囲です。'};
+ if(kind==='exponential')return{mean:1/a,variance:1/(a*a),range:[0,7/a],density:x=>a*Math.exp(-a*x),draw:r=>-Math.log(1-r())/a,note:'指数分布 Exp(λ)。平均は 1/λ、分散は 1/λ²。横軸は 0〜7/λ の範囲です。'};
+ if(kind==='uniform')return{mean:a,variance:b*b/3,range:[a-1.3*b,a+1.3*b],density:x=>Math.abs(x-a)<=b?1/(2*b):0,draw:r=>a+b*(2*r()-1),note:'区間 [c−a, c+a] の一様分布。分散は a²/3 です。'};
+ return{mean:a,variance:a*(1-a),range:[-.3,1.3],discrete:true,p:a,draw:r=>r()<a?1:0,note:'1 を確率 p、0 を確率 1−p で取る分布。分散は p(1−p) です。'};
+}
+function simulate(m,nA,nB,R,s){
+ const random=rng(s),a=[],b=[];
+ for(let t=0;t<R;t++){let mean=0,m2=0;for(let k=1;k<=Math.max(nA,nB);k++){const x=m.draw(random),d=x-mean;mean+=d/k;m2+=d*(x-mean);if(k===nA)a.push(Math.max(0,m2/k));if(k===nB)b.push(Math.max(0,m2/k));}}
+ return[{n:nA,v:a,u:a.map(x=>x*nA/(nA-1))},{n:nB,v:b,u:b.map(x=>x*nB/(nB-1))}];
+}
+function statistics(values,truth){const mean=values.reduce((s,x)=>s+x,0)/values.length;return{mean,sd:Math.sqrt(values.reduce((s,x)=>s+(x-mean)**2,0)/values.length),mse:values.reduce((s,x)=>s+(x-truth)**2,0)/values.length};}
+function config(){configurations[$('distribution').value].forEach((p,i)=>{const id='p'+(i+1),el=$(id);$(id+'label').textContent=p[0];[el.min,el.max,el.step,el.value]=p.slice(1);});$('parameter2').hidden=configurations[$('distribution').value].length<2;}
+function labels(){for(const id of ['p1','p2','n1','n2','trials'])$(id+'value').textContent=Number($(id).value).toLocaleString('ja-JP');}
+function schedule(){labels();clearTimeout(timer);$('status').textContent='計算中…';timer=setTimeout(run,100);}
+function run(){const kind=$('distribution').value,m=model(kind,+$('p1').value,+$('p2').value),R=+$('trials').value;experiment={m,R,groups:simulate(m,+$('n1').value,+$('n2').value,R,seed)};render();$('status').textContent=`各サイズで ${R.toLocaleString('ja-JP')} 回の実験が完了しました。`;}
+function chart(id,xmin,xmax,ymax,xlabel,ylabel){
+ const canvas=$(id),w=canvas.clientWidth,h=canvas.clientHeight,dpr=window.devicePixelRatio||1;canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);const p={l:61,r:w-16,t:26,b:h-49};const X=x=>p.l+(x-xmin)/(xmax-xmin)*(p.r-p.l),Y=y=>p.b-y/ymax*(p.b-p.t);
+ ctx.font='12px system-ui';ctx.lineWidth=1;ctx.textBaseline='middle';for(let i=0;i<=4;i++){let y=ymax*i/4;ctx.strokeStyle=colors.grid;ctx.beginPath();ctx.moveTo(p.l,Y(y));ctx.lineTo(p.r,Y(y));ctx.stroke();ctx.fillStyle=colors.muted;ctx.textAlign='right';ctx.fillText(fmt(y),p.l-8,Y(y));}
+ let count=w<420?3:4;for(let i=0;i<=count;i++){const x=xmin+(xmax-xmin)*i/count;ctx.fillStyle=colors.muted;ctx.textAlign=i===0?'left':i===count?'right':'center';ctx.fillText(fmt(x),X(x),p.b+18);}
+ ctx.fillStyle=colors.ink;ctx.textAlign='left';ctx.fillText(ylabel,p.l,11);ctx.textAlign='center';ctx.fillText(xlabel,(p.l+p.r)/2,h-9);ctx.strokeStyle=colors.grid;ctx.strokeRect(p.l,p.t,p.r-p.l,p.b-p.t);return{ctx,p,X,Y,w,h};
+}
+function population(m){const [lo,hi]=m.range;const points=Array.from({length:501},(_,i)=>{const x=lo+(hi-lo)*i/500;return[x,m.discrete?0:m.density(x)];});const peak=m.discrete?1:Math.max(...points.map(p=>p[1]))*1.12;const {ctx,p,X,Y}=chart('population',lo,hi,peak,'観測値 x',m.discrete?'確率':'確率密度');ctx.strokeStyle=colors.ink;ctx.fillStyle='#167667';ctx.lineWidth=2;if(m.discrete){[1-m.p,m.p].forEach((y,x)=>{ctx.fillRect(X(x)-12,Y(y),24,p.b-Y(y));ctx.textAlign='center';ctx.fillText(fmt(y),X(x),Y(y)-10);});}else{ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(X(x),Y(y)):ctx.moveTo(X(x),Y(y)));ctx.stroke();}
+ $('populationInfo').textContent=`平均 = ${fmt(m.mean)}　真の分散 σ² = ${fmt(m.variance)}`;$('populationNote').textContent=m.note;
+}
+function bins(values,max,count){const a=Array(count).fill(0);let tail=0;for(const x of values){if(x>max)tail++;else a[Math.min(count-1,Math.floor(x/max*count))]++;}return{counts:a.map(x=>x/values.length*100),tail};}
+function table(g,truth){const v=statistics(g.v,truth),u=statistics(g.u,truth);return `<table><thead><tr><th>指標</th><th>標本分散</th><th>不偏分散</th></tr></thead><tbody>${[['平均（実験）',v.mean,u.mean],['期待値（理論）',truth*(g.n-1)/g.n,truth],['偏り（実験）',v.mean-truth,u.mean-truth],['SD（実験）',v.sd,u.sd],['MSE（実験）',v.mse,u.mse]].map(([label,a,b])=>`<tr><th>${label}</th><td>${fmt(a)}</td><td>${fmt(b)}</td></tr>`).join('')}</tbody></table>`;}
+function render(){if(!experiment)return;const {m,groups}=experiment;population(m);const all=groups.flatMap(g=>g.u).sort((a,b)=>a-b);const full=$('fullRange').checked;const xmax=Math.max(m.variance*1.2,all[full?all.length-1:Math.floor((all.length-1)*.995)])*1.05;const count=45;const hist=groups.map(g=>[bins(g.v,xmax,count),bins(g.u,xmax,count)]);const ymax=Math.min(100,Math.max(...hist.flatMap(h=>h.flatMap(s=>s.counts)))*1.15)||1;
+ $('rangeNote').textContent=full?'横軸は全推定値を含みます。左右の横軸・縦軸・階級幅は共通です。':'横軸の上限は両サイズの不偏分散を合わせた99.5%点を基準にします。範囲外の件数は各図の下に表示し、棒の割合は全実験回数を分母にします。左右の目盛り・階級幅は共通です。';
+ groups.forEach((g,j)=>{const suffix=j?'B':'A';$('title'+suffix).textContent=`標本サイズ ${suffix}：n = ${g.n}`;const {ctx,p,X,Y}=chart('hist'+suffix,0,xmax,ymax,'分散の推定値','実験回数に占める割合（%）');ctx.save();ctx.beginPath();ctx.rect(p.l,p.t,p.r-p.l,p.b-p.t);ctx.clip();hist[j].forEach((series,k)=>{ctx.strokeStyle=k?colors.unbiased:colors.sample;ctx.fillStyle=k?'#b05b0c28':'#315ac559';ctx.lineWidth=1.3;series.counts.forEach((v,i)=>{const x=X(i*xmax/count),width=X((i+1)*xmax/count)-x;ctx.fillRect(x,Y(v),width,p.b-Y(v));ctx.strokeRect(x,Y(v),width,p.b-Y(v));});});
+ [[m.variance,colors.ink,[]],[m.variance*(g.n-1)/g.n,colors.sample,[5,4]]].forEach(([v,color,dash])=>{ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(X(v),p.t);ctx.lineTo(X(v),p.b);ctx.stroke();});ctx.restore();$('tail'+suffix).textContent=`表示範囲外：標本分散 ${hist[j][0].tail} 回 ／ 不偏分散 ${hist[j][1].tail} 回`;$('stats'+suffix).innerHTML=table(g,m.variance);$('hist'+suffix).setAttribute('aria-label',`n=${g.n} の推定値の分布。標本分散の理論平均 ${fmt(m.variance*(g.n-1)/g.n)}、不偏分散の理論平均 ${fmt(m.variance)}。数値は直後の表に掲載。`);
+ });
+ const [a,b]=groups;$('finding').textContent=`標本分散は平均的に、真の分散より A（n=${a.n}）で ${fmt(100/a.n)}%、B（n=${b.n}）で ${fmt(100/b.n)}% 小さくなります。不偏分散の理論上の偏りはどちらも 0。n が大きいほど補正倍率 n/(n−1) は 1 に近づき、2つの推定値の差も小さくなります。`;
+}
+$('distribution').addEventListener('change',()=>{config();schedule();});for(const id of ['p1','p2','n1','n2','trials'])$(id).addEventListener('input',schedule);$('fullRange').addEventListener('change',render);$('resample').addEventListener('click',()=>{seed=(seed+0x9e3779b9)>>>0;schedule();});document.querySelectorAll('[data-size]').forEach(button=>button.addEventListener('click',()=>{$('n1').value=button.dataset.size;schedule();}));new ResizeObserver(()=>render()).observe($('histA').parentElement);config();labels();run();
+</script>
+</body>
+</html>
