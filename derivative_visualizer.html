@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>割線から接線へ｜さわる数学</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--fg:#1d2430;--muted:#667085;--line:#d9dee7;--grid:#e6eaf0;--accent:#0f766e;--curve:#475569;--secant:#2563eb;--other:#d97706;--tangent:#15803d;--point:#be123c;--soft:#eef2f6}
+@media(prefers-color-scheme:dark){:root{--bg:#10151c;--panel:#18202a;--fg:#e6eaf0;--muted:#97a1b0;--line:#344151;--grid:#283443;--accent:#2dd4bf;--curve:#cbd5e1;--secant:#60a5fa;--other:#fbbf24;--tangent:#4ade80;--point:#fb7185;--soft:#222c38}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.75 "Hiragino Sans","Yu Gothic UI",system-ui,sans-serif}
+.wrap{max-width:1150px;margin:auto;padding:20px 16px 36px}h1{font-size:1.65rem;margin:0 0 4px}h2{font-size:1.1rem;margin:0 0 10px}h3{font-size:.95rem;margin:16px 0 6px}p{margin:0 0 10px}.note{color:var(--muted);font-size:.85rem}.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.steps{display:flex;gap:8px;margin:16px 0}.steps button{flex:1}.steps button.active{background:var(--accent);color:var(--bg)}
+main{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start}.visual{position:sticky;top:16px;min-width:0}.visual.panel{padding:12px}canvas{width:100%;display:block;aspect-ratio:720/520;touch-action:none;background:var(--panel);border-radius:6px}
+button,input,select{font:inherit}button,select,input[type=number]{background:var(--soft);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:7px 10px}button{cursor:pointer}button:hover:not(:disabled){border-color:var(--accent)}button:disabled{opacity:.5;cursor:default}button.primary{background:var(--accent);color:var(--bg)}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--secant);outline-offset:3px}select{width:100%}input[type=range]{accent-color:var(--accent);width:100%}input[type=number]{width:105px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.control{margin:14px 0}.control-head{display:flex;justify-content:space-between;gap:8px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.choice{display:block;padding:6px 0}.choice input{margin-right:8px}.hidden,[hidden]{display:none!important}
+.math{overflow-x:auto;max-width:100%;padding:4px 0;font-size:.95rem}.math .katex-display{margin:.45em 0;text-align:left}.math .katex-display>.katex{text-align:left}.math.inline{display:inline;padding:0}.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.8rem;margin:8px 0;color:var(--muted)}.legend>span:before{content:"";display:inline-block;width:16px;height:3px;margin-right:4px;vertical-align:middle;background:var(--c)}
+.zoom{border-top:1px solid var(--line);padding-top:10px;margin-top:8px}.value{font-variant-numeric:tabular-nums;font-weight:600}.readout{padding:8px 12px;background:var(--soft);border-radius:6px;margin-top:10px}.msg{border-left:3px solid var(--accent);padding:8px 12px;background:var(--soft);margin-top:10px;font-size:.9rem}.msg.good{border-color:var(--tangent)}.msg.bad{border-color:var(--point)}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.85rem}th,td{text-align:right;padding:5px 8px;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}tr.now{background:var(--soft)}details{border-top:1px solid var(--line);padding-top:8px;margin-top:12px}summary{cursor:pointer;font-weight:600}.zoom .note{margin:6px 0 0}footer{margin-top:16px}
+@media(max-width:850px){main{grid-template-columns:1fr}.visual{position:static}.steps button{font-size:.85rem}.wrap{padding:16px 12px}.panel{padding:12px}}
+</style>
+</head>
+<body><div class="wrap">
+<header><h1>割線から接線へ</h1><p class="note">2点を通る直線の傾きから、「その場所での傾き」を見つけよう。</p></header>
+<nav class="steps" aria-label="学習ステップ">
+<button class="active" data-step="1" aria-current="step">1 予想する</button><button data-step="2">2 動かして確かめる</button><button data-step="3">3 解説を読む</button>
+</nav>
+<main>
+<section class="visual panel" aria-label="グラフと拡大操作">
+<div id="functionFormula" class="math"></div>
+<canvas id="graph" width="720" height="520" role="img" aria-label="曲線上の点Aと点B、その2点を通る割線"></canvas>
+<div class="legend"><span style="--c:var(--curve)">関数の曲線</span><span style="--c:var(--secant)">A・Bを通る割線</span><span id="otherLegend" style="--c:var(--other)" hidden>A・Cを通る反対側の割線</span><span id="tangentLegend" style="--c:var(--tangent)" hidden>接線</span></div>
+<div id="coordinates" class="math"></div>
+<p class="note" id="pointNote">点Bをドラッグして動かすこともできます。</p>
+<div class="zoom">
+<div class="control-head"><label for="zoomRange">点Aの周りを拡大</label><span id="zoomValue" class="value"></span></div>
+<input id="zoomRange" type="range" min="0" max="3" step="0.01" value="0" aria-label="点Aを中心とする拡大倍率（1〜1000倍）">
+<div class="row"><button id="zoomIn">＋ 拡大</button><button id="zoomOut">− 縮小</button><button id="zoomReset">全体を見る</button></div>
+<label class="choice"><input id="followZoom" type="checkbox">Bが近づくのに合わせて自動で拡大</label>
+<p class="note">中心はいつもAです。拡大しても2点の座標は変わりません。滑らかな曲線が、Aの近くでどんな形に見えるか観察しましょう。</p>
+<p id="viewport" class="note"></p>
+</div>
+</section>
+<div class="panel">
+<label for="functionSelect">観察する関数</label>
+<select id="functionSelect"><option value="quadratic">x²（基本）</option><option value="cubic">x³</option><option value="cubicMinus">x³ − x</option><option value="sin">sin x</option><option value="wave">1 + sin x</option><option value="absolute">|x|（とがった点を調べる）</option></select>
+<section id="step1">
+<h2 style="margin-top:14px">2点を通る直線とは？</h2>
+<p>曲線上に、横の位置が違う2点A・Bをとります。</p>
+<div class="math" data-tex="A=(a,f(a)),\qquad B=(a+h,f(a+h)),\quad h\ne0"></div>
+<p>「2点を通る」とは、<b>AもBもその直線の上にある</b>という意味です。2点が決まると、両方を通る直線は1本に決まります。AとBの間だけの線分ではなく、両側へ延ばした直線で、これを<b>割線</b>と呼びます。</p>
+<p>たとえば、二次関数で次の2点をとると、割線はこの式になります。</p>
+<div class="math" data-tex="f(x)=x^2,\quad A=(1,1),\ B=(2,4)\quad\Longrightarrow\quad y=3x-2"></div>
+<p>この式にAとBそれぞれの横の座標を入れると、縦の座標が確かめられます。</p>
+<div class="math" data-tex="3\cdot1-2=1,\qquad3\cdot2-2=4"></div>
+<p><b>BをAに近づけたら、割線の傾きはどうなると思う？</b></p>
+<label class="choice"><input type="radio" name="prediction" value="limit">決まった値に近づく</label>
+<label class="choice"><input type="radio" name="prediction" value="different">左右で違う値に近づくことがある</label>
+<p class="note">予想したら実際に試しましょう。関数とAの位置によって、結果は変わります。</p>
+<button class="primary" id="toExplore">動かして確かめる →</button>
+</section>
+<section id="step2" hidden>
+<h2 style="margin-top:14px">BをAに近づけてみよう</h2>
+<p class="note">まずは二次関数で試します。傾きを観察したら、左側からも近づけ、拡大して曲線の形を見てみましょう。</p>
+</section>
+<div id="controls" hidden>
+<div class="control"><div class="control-head"><label for="aRange">Aの横の座標</label><span id="aValue" class="value"></span></div><input id="aRange" type="range" min="-2" max="2" step="0.1" value="1"></div>
+<div class="control"><div class="control-head"><label for="hRange">AからBまでの横の変化</label><span id="hValue" class="value"></span></div><input id="hRange" type="range" min="0" max="1000" step="1" value="1000"><div class="control-head note"><span>近い（0.0001）</span><span>離れている（1）</span></div></div>
+<div class="actions"><button id="half">距離を半分に</button><button id="flip">反対側から近づける</button><button id="auto">▶ 自動で近づける</button><button id="apart">2点を離す</button><button id="coincide">BをAと重ねる</button></div>
+<label class="choice"><input id="compareBoth" type="checkbox">左右の割線を同時に見る</label>
+<label class="choice"><input id="showTangent" type="checkbox">接線と比べる（答えを見る）</label>
+<div class="readout"><div id="secantEquation" class="math"></div><div id="slopeReadout" class="math"></div><p id="zeroNote" class="note" aria-live="polite"></p><div id="tangentEquation" class="math" hidden></div></div>
+<details><summary>左右の傾きを表で比べる</summary><div class="table-wrap"><table><thead><tr><th data-tex="|h|"></th><th data-tex="h&gt;0"></th><th data-tex="h&lt;0"></th></tr></thead><tbody id="slopeTable"></tbody></table></div><p class="note">左右の傾きが同じ値に近づくか見てみましょう。</p></details>
+</div>
+<div id="exploreEnd" hidden>
+<h3>傾きが近づく値を予想しよう</h3>
+<div class="row"><input id="guess" type="number" step="any" placeholder="例：2" aria-label="予想する傾き"><button id="check">確かめる</button><button id="noLimit">1つの値に決まらない</button></div>
+<div id="feedback" class="msg" aria-live="polite">図と表を見て、予想してみましょう。</div>
+<button class="primary" id="toExplain" style="margin-top:12px">解説で確かめる →</button>
+</div>
+<section id="step3" hidden>
+<h2 style="margin-top:14px">割線の傾きから微分係数へ</h2>
+<h3>1．横の変化と縦の変化を比べる</h3>
+<p>AからBまでの横の変化は、Bの横の座標からAの横の座標を引いた値です。縦の変化も同じように引きます。</p>
+<div class="math" data-tex="\Delta x=(a+h)-a=h,\qquad\Delta y=f(a+h)-f(a)"></div>
+<div class="math" data-tex="m_h=\frac{\Delta y}{\Delta x}=\frac{f(a+h)-f(a)}{h}\quad(h\ne0)"></div>
+<p>この傾きと、直線がAを通るという条件から、割線の式が書けます。Bの座標を代入しても、この式が成り立ちます。</p>
+<div class="math" data-tex="y-f(a)=m_h(x-a)"></div>
+<div class="math" data-tex="f(a+h)-f(a)=m_h\bigl((a+h)-a\bigr)=m_h\,h"></div>
+<h3>2．Bを近づけると、その場所の傾きが見える</h3>
+<p>Bを左右のどちらから近づけても、割線の傾きが同じ値に近づくなら、その値をAでの<b>微分係数</b>と呼びます。対応する直線が<b>接線</b>です。</p>
+<div class="math" data-tex="f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h},\qquad y-f(a)=f'(a)(x-a)"></div>
+<p class="note">hに0を代入する計算ではありません。AとBは別々の点のまま、間隔を0に近づけます。拡大すると、微分できる曲線はAの周りで接線に近い形に見えます。</p>
+<h3>3．今の関数では？</h3>
+<div id="explanation"></div>
+<p>とがった点も試しましょう。絶対値の関数でAの横の座標を0にすると、右側の傾きは1、左側は−1になります。拡大してもとがった形が残り、微分係数は存在しません。</p>
+<button id="back">もう一度動かして確かめる</button>
+</section>
+</div>
+</main>
+<footer class="row"><span class="note">基本は二次関数、Aの横の座標1から。</span><button id="reset">最初からやり直す</button></footer>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),canvas=$('graph'),ctx=canvas.getContext('2d');
+const sinc=x=>x===0?1:Math.sin(x)/x;
+const configs={
+ quadratic:{tex:'f(x)=x^2',f:x=>x*x,d:a=>2*a,q:(a,h)=>2*a+h,a:1,derivative:'2a',quotient:'2a+h'},
+ cubic:{tex:'f(x)=x^3',f:x=>x*x*x,d:a=>3*a*a,q:(a,h)=>3*a*a+3*a*h+h*h,a:1,derivative:'3a^2',quotient:'3a^2+3ah+h^2'},
+ cubicMinus:{tex:'f(x)=x^3-x',f:x=>x*x*x-x,d:a=>3*a*a-1,q:(a,h)=>3*a*a-1+3*a*h+h*h,a:1,derivative:'3a^2-1',quotient:'3a^2-1+3ah+h^2'},
+ sin:{tex:String.raw`f(x)=\sin x`,f:Math.sin,d:Math.cos,q:(a,h)=>Math.cos(a+h/2)*sinc(h/2),a:1,derivative:String.raw`\cos a`},
+ wave:{tex:String.raw`f(x)=1+\sin x`,f:x=>1+Math.sin(x),d:Math.cos,q:(a,h)=>Math.cos(a+h/2)*sinc(h/2),a:1,derivative:String.raw`\cos a`},
+ absolute:{tex:'f(x)=|x|',f:Math.abs,d:a=>a===0?null:Math.sign(a),q:(a,h)=>(Math.abs(a+h)-Math.abs(a))/h,a:0}
+};
+let key='quadratic',a=1,h=1,step=1,zoom=1,timer=null,dragging=false,formulaState='';
+const fmt=(v,d=4)=>{if(v===0)return '0';const digits=Math.min(14,Math.max(d,2-Math.floor(Math.log10(Math.abs(v)))));return v.toFixed(digits).replace(/(?:\.0+|(\.\d*?)0+)$/,'$1')};
+const css=name=>getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+function math(el,tex,display=true){if(window.katex)katex.render(tex,el,{displayMode:display,throwOnError:false,strict:false});else el.textContent=tex}
+function renderStatic(){document.querySelectorAll('[data-tex]').forEach(el=>math(el,el.dataset.tex,!['TH','SPAN'].includes(el.tagName)))}
+function viewport(){
+ const c=configs[key],cy=c.f(a),z=$('followZoom').checked?Math.min(1000,Math.max(1,.7/Math.max(Math.abs(h),.0001))):zoom;
+ const xHalf=3/z,yBase=Math.max(2.5,Math.abs(c.f(a+1.5)-cy)*1.2,Math.abs(c.f(a-1.5)-cy)*1.2),yHalf=yBase/z;
+ return{xMin:a-xHalf,xMax:a+xHalf,yMin:cy-yHalf,yMax:cy+yHalf,z};
+}
+const box={left:56,right:700,top:26,bottom:474};
+const sx=(x,v)=>box.left+(x-v.xMin)/(v.xMax-v.xMin)*(box.right-box.left);
+const sy=(y,v)=>box.bottom-(y-v.yMin)/(v.yMax-v.yMin)*(box.bottom-box.top);
+const ux=(px,v)=>v.xMin+(px-box.left)/(box.right-box.left)*(v.xMax-v.xMin);
+const slope=()=>h===0?null:configs[key].q(a,h);
+function niceStep(span){const raw=span/6,unit=10**Math.floor(Math.log10(raw)),r=raw/unit;return(r<=1?1:r<=2?2:r<=5?5:10)*unit}
+function tickLabel(value,tick){return fmt(value,Math.min(7,Math.max(0,-Math.floor(Math.log10(tick))+1)))}
+function drawLine(m,color,v,dash=[]){
+ const fa=configs[key].f(a);ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(sx(v.xMin,v),sy(fa+m*(v.xMin-a),v));ctx.lineTo(sx(v.xMax,v),sy(fa+m*(v.xMax-a),v));ctx.stroke();ctx.setLineDash([]);
+}
+function draw(){
+ const c=configs[key],v=viewport(),m=slope(),d=c.d(a),tangent=step!==1&&$('showTangent').checked&&d!==null,both=step!==1&&$('compareBoth').checked&&h!==0;
+ ctx.clearRect(0,0,720,520);ctx.fillStyle=css('--panel');ctx.fillRect(0,0,720,520);
+ const xTick=niceStep(v.xMax-v.xMin),yTick=niceStep(v.yMax-v.yMin);
+ ctx.font='11px system-ui';ctx.lineWidth=1;
+ for(let j=Math.ceil(v.xMin/xTick);j*xTick<=v.xMax;j++){
+  const x=j*xTick,p=sx(x,v);ctx.strokeStyle=css('--grid');ctx.beginPath();ctx.moveTo(p,box.top);ctx.lineTo(p,box.bottom);ctx.stroke();ctx.fillStyle=css('--muted');ctx.textAlign='center';ctx.fillText(tickLabel(x,xTick),p,box.bottom+20);
+ }
+ for(let j=Math.ceil(v.yMin/yTick);j*yTick<=v.yMax;j++){
+  const y=j*yTick,p=sy(y,v);ctx.strokeStyle=css('--grid');ctx.beginPath();ctx.moveTo(box.left,p);ctx.lineTo(box.right,p);ctx.stroke();ctx.fillStyle=css('--muted');ctx.textAlign='right';ctx.fillText(tickLabel(y,yTick),box.left-7,p+4);
+ }
+ ctx.save();ctx.beginPath();ctx.rect(box.left,box.top,box.right-box.left,box.bottom-box.top);ctx.clip();
+ ctx.strokeStyle=css('--line');ctx.lineWidth=1.5;
+ if(v.xMin<=0&&v.xMax>=0){ctx.beginPath();ctx.moveTo(sx(0,v),box.top);ctx.lineTo(sx(0,v),box.bottom);ctx.stroke()}
+ if(v.yMin<=0&&v.yMax>=0){ctx.beginPath();ctx.moveTo(box.left,sy(0,v));ctx.lineTo(box.right,sy(0,v));ctx.stroke()}
+ ctx.strokeStyle=css('--curve');ctx.lineWidth=3;ctx.beginPath();
+ for(let i=0;i<=700;i++){const x=v.xMin+(v.xMax-v.xMin)*i/700,y=c.f(x);i?ctx.lineTo(sx(x,v),sy(y,v)):ctx.moveTo(sx(x,v),sy(y,v))}ctx.stroke();
+ if(tangent)drawLine(d,css('--tangent'),v,[8,5]);
+ if(both)drawLine(c.q(a,-h),css('--other'),v,[5,4]);
+ if(m!==null){drawLine(m,css('--secant'),v);ctx.strokeStyle=css('--muted');ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(sx(a,v),sy(c.f(a),v));ctx.lineTo(sx(a+h,v),sy(c.f(a),v));ctx.lineTo(sx(a+h,v),sy(c.f(a+h),v));ctx.stroke();ctx.setLineDash([])}
+ function dot(x,y,label,color,dy){ctx.fillStyle=color;ctx.beginPath();ctx.arc(sx(x,v),sy(y,v),5,0,2*Math.PI);ctx.fill();ctx.font='bold 12px system-ui';ctx.textAlign='left';ctx.fillText(label,sx(x,v)+8,sy(y,v)+dy)}
+ dot(a,c.f(a),h===0?'A = B':'A',css('--point'),20);
+ if(h!==0)dot(a+h,c.f(a+h),'B',css('--secant'),-10);
+ if(both)dot(a-h,c.f(a-h),'C',css('--other'),-10);
+ ctx.restore();ctx.fillStyle=css('--muted');ctx.font='12px system-ui';ctx.textAlign='left';ctx.fillText('x',box.right+6,box.bottom+20);ctx.fillText('y',box.left-8,16);
+ const off=h!==0&&(a+h<v.xMin||a+h>v.xMax||c.f(a+h)<v.yMin||c.f(a+h)>v.yMax);
+ $('pointNote').textContent=off?'Bは表示範囲の外です。縮小するか、BをAに近づけると見えます。':step===1?'AとBの座標を見て、2点を通る直線を確かめよう。':'青い点Bをドラッグして動かすこともできます。';
+ $('otherLegend').hidden=!both;$('tangentLegend').hidden=!tangent;
+ $('aValue').textContent=fmt(a,1);$('aRange').value=a;$('hValue').textContent='h = '+fmt(h);
+ $('hRange').value=h===0?0:Math.max(0,Math.min(1000,(1+Math.log10(Math.abs(h))/4)*1000));
+ $('zoomValue').textContent=fmt(v.z,1)+'倍';$('zoomRange').value=Math.log10(v.z);$('zoomRange').disabled=$('followZoom').checked;
+ $('zoomIn').disabled=$('zoomOut').disabled=$('followZoom').checked;
+ $('viewport').textContent=`表示範囲：x は ${fmt(v.xMin,5)} 〜 ${fmt(v.xMax,5)}、y は ${fmt(v.yMin,5)} 〜 ${fmt(v.yMax,5)}`;
+ $('half').disabled=h===0||Math.abs(h)<=.0001;
+ $('zeroNote').textContent=h===0?'AとBが同じ点になりました。0÷0では傾きが決まらず、この点だけでは直線を1本に決められません。「2点を離す」で戻れます。':'';
+ updateFormulas(m,d,tangent,both);
+}
+function updateFormulas(m,d,tangent,both){
+ const state=[key,a,h,step,tangent,both,!!window.katex].join('/');if(state===formulaState)return;formulaState=state;
+ const c=configs[key],fa=c.f(a);
+ math($('functionFormula'),c.tex);
+ math($('coordinates'),`A=(${fmt(a)},${fmt(fa,5)}),\\quad B=(${fmt(a+h,5)},${fmt(c.f(a+h),5)})`);
+ if(both){const el=document.createElement('div');$('coordinates').append(el);math(el,`C=(${fmt(a-h,5)},${fmt(c.f(a-h),5)})`)}
+ math($('secantEquation'),h===0?String.raw`h=0:\quad m_h=\frac{0}{0}\ \text{は定義されません}`:String.raw`\text{割線：}\quad y-f(a)=m_h(x-a)`);
+ math($('slopeReadout'),h===0?String.raw`A=B`:`m_h=\\frac{${fmt(c.f(a+h)-fa,7)}}{${fmt(h,7)}}\\approx${fmt(m,5)}`);
+ $('tangentEquation').hidden=!tangent;if(tangent)math($('tangentEquation'),String.raw`\text{接線：}\quad y-f(a)=f'(a)(x-a),\quad f'(a)\approx`+fmt(d,5));
+ $('slopeTable').innerHTML=[1,.1,.01,.001,.0001].map(v=>`<tr class="${h!==0&&Math.abs(Math.log10(Math.abs(h)/v))<.15?'now':''}"><td>${v}</td><td>${fmt(c.q(a,v),5)}</td><td>${fmt(c.q(a,-v),5)}</td></tr>`).join('');
+ explanation();
+}
+function explanation(){
+ const c=configs[key],d=c.d(a),el=$('explanation');el.replaceChildren();
+ function paragraph(text){const p=document.createElement('p');p.textContent=text;el.append(p)}
+ function formula(tex){const p=document.createElement('div');p.className='math';el.append(p);math(p,tex)}
+ if(c.quotient){paragraph('差を計算してhで割ると、次のように整理できます。');formula(String.raw`\frac{f(a+h)-f(a)}{h}=`+c.quotient);formula(`f'(a)=${c.derivative},\\qquad f'(${fmt(a)})=${fmt(d,5)}`)}
+ else if(key==='absolute'){
+  if(a===0){formula(String.raw`\frac{|h|-0}{h}=\begin{cases}1&h>0\\-1&h<0\end{cases}`);paragraph('右からと左からで傾きが一致しないので、A=(0,0)で微分係数は存在しません。接線は表示しません。')}
+  else{formula(String.raw`f'(a)=\begin{cases}1&a>0\\-1&a<0\end{cases}`);paragraph('今のAでは、近くの曲線はすでに直線です。Aを0へ動かすと、とがった点を調べられます。')}
+ }else{formula(String.raw`\frac{f(a+h)-f(a)}{h}=\cos\!\left(a+\frac h2\right)\frac{\sin(h/2)}{h/2}`);formula(`f'(a)=\\cos a,\\qquad f'(${fmt(a)})\\approx${fmt(d,5)}`);paragraph('三角関数の角度はラジアンです。')}
+}
+function stop(){if(timer!==null)clearInterval(timer);timer=null;$('auto').textContent='▶ 自動で近づける'}
+function clearFeedback(){$('feedback').className='msg';$('feedback').textContent='図と表を見て、予想してみましょう。'}
+function setH(value){h=value===0?0:Math.sign(value)*Math.max(.0001,Math.min(1.5,Math.abs(value)));draw()}
+function go(s){stop();step=s;if(s===3)$('showTangent').checked=true;for(let i=1;i<=3;i++)$('step'+i).hidden=s!==i;$('controls').hidden=s===1;$('exploreEnd').hidden=s!==2;document.querySelectorAll('[data-step]').forEach(b=>{b.classList.toggle('active',+b.dataset.step===s);b.setAttribute('aria-current',+b.dataset.step===s?'step':'false')});draw()}
+function setFn(k){stop();key=k;a=configs[k].a;h=1;$('showTangent').checked=false;$('guess').value='';clearFeedback();document.querySelectorAll('[name=prediction]').forEach(r=>r.checked=false);go(1)}
+function judge(none){
+ const d=configs[key].d(a),guess=$('guess').value,good=none?d===null:d!==null&&guess.trim()!==''&&Number.isFinite(+guess)&&Math.abs(+guess-d)<.03;
+ $('feedback').className='msg '+(good?'good':'bad');
+ if(!none&&guess.trim()===''){$('feedback').textContent='数値を入力するか、「1つの値に決まらない」を選んでください。';return}
+ $('feedback').textContent=good?'予想は合っています！ ':d===null?'左右の傾きが異なるので、1つの値には決まりません。 ':'左右の傾きを、もう少し近くで見比べてみましょう。 ';
+ if(d!==null){const el=document.createElement('div');$('feedback').append(el);math(el,`f'(${fmt(a)})=${fmt(d,5)}`)}
+}
+$('functionSelect').addEventListener('change',e=>setFn(e.target.value));
+$('aRange').addEventListener('input',e=>{stop();a=+e.target.value;clearFeedback();draw()});
+$('hRange').addEventListener('input',e=>{stop();setH((h<0?-1:1)*10**(-4+4*+e.target.value/1000))});
+$('half').addEventListener('click',()=>{stop();if(h!==0)setH(h/2)});
+$('flip').addEventListener('click',()=>{stop();setH(h===0?-1:-h)});
+$('apart').addEventListener('click',()=>{stop();setH(h<0?-1:1)});
+$('coincide').addEventListener('click',()=>{stop();setH(0)});
+$('compareBoth').addEventListener('change',draw);$('showTangent').addEventListener('change',draw);
+$('auto').addEventListener('click',()=>{if(timer!==null){stop();return}if(h===0||Math.abs(h)<=.0001)h=h<0?-1:1;$('auto').textContent='⏸ 停止';timer=setInterval(()=>{setH(Math.sign(h)*Math.max(.0001,Math.abs(h)*.8));if(Math.abs(h)<=.0001)stop()},130);draw()});
+function manualZoom(z){$('followZoom').checked=false;zoom=Math.min(1000,Math.max(1,z));draw()}
+$('zoomRange').addEventListener('input',e=>manualZoom(10**(+e.target.value)));
+$('zoomIn').addEventListener('click',()=>manualZoom(zoom*2));$('zoomOut').addEventListener('click',()=>manualZoom(zoom/2));$('zoomReset').addEventListener('click',()=>manualZoom(1));$('followZoom').addEventListener('change',()=>{zoom=viewport().z;draw()});
+$('toExplore').addEventListener('click',()=>go(2));$('toExplain').addEventListener('click',()=>go(3));$('back').addEventListener('click',()=>go(2));
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>go(+b.dataset.step)));
+$('check').addEventListener('click',()=>judge(false));$('noLimit').addEventListener('click',()=>judge(true));$('guess').addEventListener('keydown',e=>{if(e.key==='Enter')judge(false)});
+$('reset').addEventListener('click',()=>{zoom=1;$('followZoom').checked=false;$('compareBoth').checked=false;$('functionSelect').value='quadratic';setFn('quadratic')});
+canvas.addEventListener('pointerdown',e=>{if(step===1||h===0)return;const r=canvas.getBoundingClientRect(),px=(e.clientX-r.left)*720/r.width,py=(e.clientY-r.top)*520/r.height,v=viewport();if(Math.hypot(px-sx(a+h,v),py-sy(configs[key].f(a+h),v))<25){stop();dragging=true;canvas.setPointerCapture(e.pointerId)}});
+canvas.addEventListener('pointermove',e=>{if(!dragging)return;const r=canvas.getBoundingClientRect(),px=(e.clientX-r.left)*720/r.width;setH(ux(px,viewport())-a)});
+const endDrag=()=>{dragging=false};canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);canvas.addEventListener('lostpointercapture',endDrag);
+window.addEventListener('resize',draw);matchMedia('(prefers-color-scheme:dark)').addEventListener('change',draw);
+renderStatic();go(1);
+window.addEventListener('DOMContentLoaded',()=>{renderStatic();formulaState='';draw()});
+})();
+</script>
+</body>
+</html>
