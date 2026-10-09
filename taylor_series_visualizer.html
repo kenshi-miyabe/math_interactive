@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>テイラー展開ビジュアライザ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--fg:#1d2430;--muted:#667085;--cv:#fbfcfe;--axis:#98a2b3;--grid:#e6eaf0;--line:#d9dee7;--accent:#0f766e;--poly:#e11d48;--old:#3b82f6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151c;--panel:#18202a;--fg:#e6eaf0;--muted:#97a1b0;--cv:#0c1117;--axis:#5b6676;--grid:#1d2631;--line:#2a3441;--accent:#2dd4bf;--poly:#fb7185;--old:#60a5fa}}
+:root[data-theme="dark"]{--bg:#10151c;--panel:#18202a;--fg:#e6eaf0;--muted:#97a1b0;--cv:#0c1117;--axis:#5b6676;--grid:#1d2631;--line:#2a3441;--accent:#2dd4bf;--poly:#fb7185;--old:#60a5fa}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 "Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.35rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 14px;font-size:.9rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:12px}
+canvas{width:100%;display:block;border-radius:4px;background:var(--cv);touch-action:none}
+#cm{aspect-ratio:16/9;cursor:crosshair}
+#ce{aspect-ratio:16/3.2}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button,select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=range]{accent-color:var(--accent);flex:1;min-width:140px}
+.big{font-size:1.15rem;font-weight:600;font-variant-numeric:tabular-nums;min-width:4.5em}
+.leg{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.82rem;margin-top:8px}
+.leg span:before{content:"";display:inline-block;width:18px;height:3px;margin-right:6px;vertical-align:middle;background:var(--c)}
+.info{font-size:.9rem;line-height:1.8;font-variant-numeric:tabular-nums}
+.f{font-family:Georgia,"Times New Roman",serif;font-size:1.02rem;overflow-x:auto;white-space:nowrap}
+h2{font-size:.9rem;margin:0 0 6px}
+.math{overflow-x:auto;padding:8px 2px}
+.math .katex-display{margin:.4em 0;text-align:left}
+.math .katex-display>.katex{text-align:left}
+#titleFormula{font-size:1.1rem}
+#progress{margin:6px 0;color:var(--poly);font-weight:600}
+#expansionNote{margin:8px 0 0;font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>テイラー展開：<span id="titleFunction">sin x</span></h1>
+<div id="titleFormula" class="math">Pₙ(x) = Σₖ₌₀ⁿ f⁽ᵏ⁾(a)/k! · (x − a)ᵏ</div>
+<p class="sub">次数 n を増やすと、中心 a のまわりで多項式が関数に近づいていきます。</p>
+
+<div class="panel">
+  <div class="row">
+    <label>関数 <select id="fs"></select></label>
+    <button id="play">▶ 自動再生</button>
+    <button id="reset">n = 0</button>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <span>次数 n</span><span class="big" id="nv">0</span>
+    <input id="ns" type="range" min="0" max="20" step="1" value="0" aria-label="次数 n">
+  </div>
+  <div class="row" style="margin-top:6px">
+    <span>中心 a</span><span class="big" id="av">0.00</span>
+    <input id="as" type="range" min="-5" max="5" step="0.05" value="0" aria-label="中心 a">
+  </div>
+</div>
+
+<section class="panel" aria-labelledby="expansionHeading">
+  <h2 id="expansionHeading">選んだ関数のテイラー展開</h2>
+  <div id="seriesFormula" class="math"></div>
+  <p id="progress" aria-live="polite"></p>
+  <div id="polynomialFormula" class="math"></div>
+  <p id="expansionNote"></p>
+</section>
+
+<div class="panel">
+  <canvas id="cm"></canvas>
+  <div class="leg">
+    <span style="--c:var(--fg)">f(x)</span><span style="--c:var(--poly)">Pₙ(x)</span><span style="--c:var(--old)">P₀〜Pₙ₋₁（薄く）</span><span style="--c:var(--accent)">収束域</span>
+  </div>
+  <p class="sub" style="margin:8px 0 0">グラフ上でマウスを動かすと x を調べられます。中心の点（○）をドラッグすると a を動かせます。</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="cols">
+  <div class="panel info" id="info"></div>
+  <div class="panel"><h2>調べている x での誤差 |f(x) − Pₖ(x)|（対数）</h2><canvas id="ce"></canvas></div>
+</div>
+<style>@media(max-width:760px){.cols{grid-template-columns:1fr!important}}</style>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const FA=[1];for(let i=1;i<=30;i++)FA[i]=FA[i-1]*i;
+const N=20;
+const FN={
+ sin:{n:'sin x',f:Math.sin,c:(a,k)=>Math.sin(a+k*Math.PI/2)/FA[k],v:[-7,7,-3,3],R:()=>Infinity,amin:-5,amax:5},
+ cos:{n:'cos x',f:Math.cos,c:(a,k)=>Math.cos(a+k*Math.PI/2)/FA[k],v:[-7,7,-3,3],R:()=>Infinity,amin:-5,amax:5},
+ exp:{n:'eˣ',f:Math.exp,c:(a,k)=>Math.exp(a)/FA[k],v:[-5,5,-2,10],R:()=>Infinity,amin:-4,amax:4},
+ ln:{n:'log(1+x)',f:x=>x>-1?Math.log(1+x):NaN,c:(a,k)=>k==0?Math.log(1+a):(k%2?1:-1)/(k*Math.pow(1+a,k)),v:[-1.6,4,-4,3],R:a=>1+a,amin:-0.9,amax:3.5,sing:-1},
+ geo:{n:'1/(1−x)',f:x=>1/(1-x),c:(a,k)=>1/Math.pow(1-a,k+1),v:[-4,4,-5,5],R:a=>Math.abs(1-a),amin:-3.5,amax:3.5,sing:1,skip:1},
+ sq:{n:'√(1+x)',f:x=>x>=-1?Math.sqrt(1+x):NaN,c:(a,k)=>{let b=1;for(let i=1;i<=k;i++)b*=(0.5-i+1)/i;return b*Math.pow(1+a,0.5-k)},v:[-1.6,6,-1,4],R:a=>1+a,amin:-0.9,amax:5,sing:-1}
+};
+Object.entries(FN).forEach(([k,o])=>{const op=document.createElement('option');op.value=k;op.textContent=o.n;$('#fs').append(op)});
+
+let key='sin',n=0,a=0,xp=1.5,S=800,H=450,timer=null,drag=false;
+const cm=$('#cm'),ce=$('#ce');
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const cof=()=>{const o=FN[key],c=[];for(let k=0;k<=N;k++)c.push(o.c(a,k));return c};
+const P=(c,m,x)=>{let s=0,t=x-a;for(let k=m;k>=0;k--)s=s*t+c[k];return s};
+
+function view(){return FN[key].v}
+const tx=x=>(x-view()[0])/(view()[1]-view()[0])*S;
+const ty=y=>H-(y-view()[2])/(view()[3]-view()[2])*H;
+const fx=px=>view()[0]+px/S*(view()[1]-view()[0]);
+
+function curve(ctx,fn,col,lw,alpha){
+  const[x0,x1]=view();ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.globalAlpha=alpha;ctx.beginPath();
+  let py=null;
+  for(let i=0;i<=S;i+=1){
+    const y=fn(fx(i));
+    if(!isFinite(y)){py=null;continue}
+    const sy=ty(y);
+    if(Math.abs(sy)>1e4){py=null;continue}
+    if(py!==null&&Math.abs(sy-py)<H*0.9)ctx.lineTo(i,sy);else ctx.moveTo(i,sy);
+    py=sy;
+  }
+  ctx.stroke();ctx.globalAlpha=1;
+}
+
+function draw(){
+  const o=FN[key],c=cof(),ctx=cm.getContext('2d'),[x0,x1,y0,y1]=view();
+  ctx.clearRect(0,0,S,H);ctx.fillStyle=css('--cv');ctx.fillRect(0,0,S,H);
+  // 収束域
+  const R=o.R(a);
+  if(isFinite(R)){const l=Math.max(tx(a-R),0),r=Math.min(tx(a+R),S);ctx.fillStyle=css('--accent');ctx.globalAlpha=.1;ctx.fillRect(l,0,r-l,H);ctx.globalAlpha=1;
+    ctx.strokeStyle=css('--accent');ctx.setLineDash([5,4]);ctx.lineWidth=1;[a-R,a+R].forEach(x=>{if(x>x0&&x<x1){ctx.beginPath();ctx.moveTo(tx(x),0);ctx.lineTo(tx(x),H);ctx.stroke()}});ctx.setLineDash([])}
+  // 格子・軸
+  ctx.font='11px system-ui';ctx.fillStyle=css('--axis');
+  ctx.strokeStyle=css('--grid');ctx.lineWidth=1;
+  for(let x=Math.ceil(x0);x<=x1;x++){ctx.beginPath();ctx.moveTo(tx(x),0);ctx.lineTo(tx(x),H);ctx.stroke();if(x)ctx.fillText(x,tx(x)+3,Math.min(Math.max(ty(0)+13,12),H-4))}
+  for(let y=Math.ceil(y0);y<=y1;y++){ctx.beginPath();ctx.moveTo(0,ty(y));ctx.lineTo(S,ty(y));ctx.stroke();if(y)ctx.fillText(y,Math.min(Math.max(tx(0)+4,2),S-18),ty(y)-3)}
+  ctx.strokeStyle=css('--axis');ctx.lineWidth=1.3;
+  ctx.beginPath();ctx.moveTo(0,ty(0));ctx.lineTo(S,ty(0));ctx.moveTo(tx(0),0);ctx.lineTo(tx(0),H);ctx.stroke();
+  if(o.sing!==undefined&&key==='geo'){ctx.setLineDash([4,4]);ctx.strokeStyle='#d92d20';ctx.beginPath();ctx.moveTo(tx(1),0);ctx.lineTo(tx(1),H);ctx.stroke();ctx.setLineDash([])}
+  // 過去の多項式
+  for(let m=0;m<n;m++)curve(ctx,x=>P(c,m,x),css('--old'),1.2,0.12+0.4*m/Math.max(n,1));
+  // f と Pn
+  curve(ctx,o.f,css('--fg'),2.6,1);
+  curve(ctx,x=>P(c,n,x),css('--poly'),2.6,1);
+  // 調べる x
+  const fv=o.f(xp),pv=P(c,n,xp);
+  ctx.strokeStyle=css('--muted');ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(tx(xp),0);ctx.lineTo(tx(xp),H);ctx.stroke();ctx.setLineDash([]);
+  [[fv,css('--fg')],[pv,css('--poly')]].forEach(([v,col])=>{if(isFinite(v)&&ty(v)>-5&&ty(v)<H+5){ctx.fillStyle=col;ctx.beginPath();ctx.arc(tx(xp),ty(v),4.5,0,7);ctx.fill()}});
+  // 中心
+  const fa=o.f(a);
+  if(isFinite(fa)){ctx.fillStyle=css('--cv');ctx.strokeStyle=css('--accent');ctx.lineWidth=3;ctx.beginPath();ctx.arc(tx(a),ty(fa),8,0,7);ctx.fill();ctx.stroke()}
+  info(c,fv,pv);errChart(c);expansion();
+}
+
+function info(c,fv,pv){
+  const o=FN[key],R=o.R(a);
+  $('#info').innerHTML=`<h2>調べている点での値</h2>
+  <div>中心 a = ${a.toFixed(2)}、x = <b>${xp.toFixed(2)}</b></div>
+  <div>f(x) = ${isFinite(fv)?fv.toFixed(5):'定義域外'}</div>
+  <div>P<sub>${n}</sub>(x) = ${isFinite(pv)?pv.toFixed(5):'—'}</div>
+  <div>誤差 = <b>${isFinite(fv)&&isFinite(pv)?Math.abs(fv-pv).toExponential(2):'—'}</b></div>
+  <div style="color:var(--muted)">${isFinite(R)?`収束半径 = ${R.toFixed(2)}（中心から特異点までの距離）。|x−a| がこれより大きいと、n を増やしても発散します。`:'どの x でも収束します（収束半径 ∞）。'}</div>`;
+}
+
+function errChart(c){
+  const ctx=ce.getContext('2d'),w=ce.width/(window.devicePixelRatio||1),h=ce.height/(window.devicePixelRatio||1),fv=FN[key].f(xp);
+  ctx.clearRect(0,0,w,h);ctx.fillStyle=css('--cv');ctx.fillRect(0,0,w,h);
+  const bw=w/(N+1);ctx.font='10px system-ui';
+  for(let k=0;k<=N;k++){
+    const e=Math.abs(fv-P(c,k,xp));if(!isFinite(e))continue;
+    const l=Math.log10(Math.max(e,1e-16)),r=Math.min(Math.max((l+16)/18,0.02),1);
+    ctx.fillStyle=k==n?css('--poly'):css('--old');ctx.globalAlpha=k==n?1:.4;
+    ctx.fillRect(k*bw+2,(h-14)*(1-r),bw-4,(h-14)*r);ctx.globalAlpha=1;
+    ctx.fillStyle=css('--axis');ctx.fillText(k,k*bw+bw/2-3,h-3);
+  }
+}
+
+
+function math(el,tex,displayMode=true){
+  if(window.katex)katex.render(tex,el,{displayMode,throwOnError:false,strict:false});
+  else el.textContent=tex;
+}
+const num=v=>String(Number(v.toFixed(2)));
+const functionTex={sin:String.raw`\sin x`,cos:String.raw`\cos x`,exp:'e^x',ln:String.raw`\log(1+x)`,geo:String.raw`\frac{1}{1-x}`,sq:String.raw`\sqrt{1+x}`};
+let expansionState='';
+// Exact coefficients: keep factorials and fractions instead of rounding small terms to zero.
+function term(k){
+  let sign=1,coefficient='1',zero=false;
+  const A=num(a),base=a===0?'x':String.raw`\left(x${a<0?'+':'-'}${num(Math.abs(a))}\right)`;
+  if(key==='sin'||key==='cos'){
+    const cycle=key==='sin'?['sin','cos','sin','cos']:['cos','sin','cos','sin'];
+    const fn=cycle[k%4];sign=key==='sin'?(k%4>=2?-1:1):([1,-1,-1,1][k%4]);
+    zero=a===0&&fn==='sin';
+    coefficient=a===0?'1':String.raw`\${fn}\left(${A}\right)`;
+    if(k>=2)coefficient=String.raw`\frac{${coefficient}}{${k}!}`;
+  }else if(key==='exp'){
+    coefficient=a===0?'1':`e^{${A}}`;
+    if(k>=2)coefficient=String.raw`\frac{${coefficient}}{${k}!}`;
+  }else if(key==='ln'){
+    if(k===0){zero=a===0;coefficient=String.raw`\log\left(${num(1+a)}\right)`;}
+    else{sign=k%2?1:-1;const denominator=a===0?`${k}`:`${k===1?'':k+String.raw`\,`}${num(1+a)}${k===1?'':`^{${k}}`}`;coefficient=denominator==='1'?'1':String.raw`\frac{1}{${denominator}}`;}
+  }else if(key==='geo'){
+    sign=1-a<0&&((k+1)%2)?-1:1;
+    const denominator=num(Math.abs(1-a));
+    coefficient=denominator==='1'?'1':String.raw`\frac{1}{${denominator}${k===0?'':`^{${k+1}}`}}`;
+  }else if(key==='sq'){
+    if(k===0)coefficient=a===0?'1':String.raw`\sqrt{${num(1+a)}}`;
+    else{
+      // binomial(1/2,k) = (-1)^(k-1) (2k-3)!! / (2^k k!)
+      let numerator=1n,denominator=2n**BigInt(k);
+      for(let j=1;j<=k;j++)denominator*=BigInt(j);
+      for(let j=1;j<=2*k-3;j+=2)numerator*=BigInt(j);
+      let u=numerator,v=denominator;while(v){const r=u%v;u=v;v=r}numerator/=u;denominator/=u;
+      sign=k%2?1:-1;
+      coefficient=String.raw`\frac{${numerator}}{${denominator}}`;
+      if(a!==0)coefficient+=String.raw`\,${num(1+a)}^{\frac{1}{2}-${k}}`;
+    }
+  }
+  if(zero)return{sign:1,tex:'0',zero:true};
+  const power=k===0?'':k===1?base:`${base}^{${k}}`;
+  return{sign,tex:coefficient==='1'&&power?power:coefficient+power,zero:false};
+}
+function sumTerms(terms,highlight=-1){
+  let out='';
+  terms.forEach((t,k)=>{
+    if(t.zero)return;
+    const signed=(out?(t.sign<0?'-':'+'):(t.sign<0?'-':''))+t.tex;
+    out+=k===highlight?String.raw`\underbrace{${signed}}_{\text{現在の次数の項}}`:signed;
+  });
+  return out||'0';
+}
+function expansion(){
+  const state=`${key}/${a}/${n}/${!!window.katex}`;if(state===expansionState)return;expansionState=state;
+  math($('#titleFunction'),functionTex[key],false);
+  math($('#titleFormula'),String.raw`P_n(x)=\sum_{k=0}^{n}\frac{f^{(k)}(a)}{k!}(x-a)^k`);
+  const all=Array.from({length:N+1},(_,k)=>term(k));
+  const preview=all.slice(0,7);
+  math($('#seriesFormula'),`${functionTex[key]}=${sumTerms(preview)}+\\cdots`);
+  math($('#polynomialFormula'),`P_{${n}}(x)=${sumTerms(all.slice(0,n+1),n)}`);
+  $('#progress').textContent=`中心 a = ${num(a)}：0次から${n}次までの項を追加済み${all[n].zero?'（今回の係数は0なので、多項式は変わりません）':''}`;
+  const R=FN[key].R(a);
+  math($('#expansionNote'),isFinite(R)?String.raw`\text{上の無限級数との等号は }|x-${a<0?`(${num(a)})`:num(a)}|<${num(R)}\text{ の範囲で成立（端点は別途判定）。}`:String.raw`\text{上の無限級数は、すべての実数 }x\text{ で元の関数に収束します。}` ,false);
+}
+function sync(){$('#nv').textContent=n;$('#ns').value=n;$('#av').textContent=a.toFixed(2);$('#as').value=a;draw()}
+function setFn(k){key=k;const o=FN[k];$('#as').min=o.amin;$('#as').max=o.amax;a=Math.min(Math.max(a,o.amin),o.amax);if(k==='geo'&&Math.abs(a-1)<0.05)a=0;xp=Math.min(Math.max(xp,view()[0]+.2),view()[1]-.2);sync()}
+$('#fs').onchange=e=>setFn(e.target.value);
+$('#ns').oninput=e=>{n=+e.target.value;stop();sync()};
+$('#as').oninput=e=>{a=+e.target.value;if(key==='geo'&&Math.abs(a-1)<0.05)a=a<1?0.94:1.06;sync()};
+function stop(){if(timer){clearInterval(timer);timer=null;$('#play').textContent='▶ 自動再生';$('#play').classList.remove('on')}}
+$('#play').onclick=()=>{if(timer){stop();return}if(n>=N)n=0;$('#play').textContent='❚❚ 停止';$('#play').classList.add('on');sync();
+  timer=setInterval(()=>{if(n>=N){stop();return}n++;sync()},650)};
+$('#reset').onclick=()=>{stop();n=0;sync()};
+
+/* ポインタ操作 */
+const pos=e=>{const r=cm.getBoundingClientRect();return[(e.clientX-r.left)*S/r.width,(e.clientY-r.top)*H/r.height]};
+cm.addEventListener('pointerdown',e=>{
+  const[x,y]=pos(e),fa=FN[key].f(a);
+  if(isFinite(fa)&&Math.hypot(x-tx(a),y-ty(fa))<24){drag=true;cm.setPointerCapture(e.pointerId)}
+  else{xp=fx(x);draw()}
+});
+cm.addEventListener('pointermove',e=>{
+  const[x]=pos(e),o=FN[key];
+  if(drag){let v=Math.min(Math.max(fx(x),o.amin),o.amax);if(key==='geo'&&Math.abs(v-1)<0.05)v=v<1?0.94:1.06;a=Math.round(v*20)/20;sync()}
+  else{xp=fx(x);draw()}
+});
+const up=()=>{drag=false};cm.addEventListener('pointerup',up);cm.addEventListener('pointercancel',up);
+
+function resize(){
+  const dpr=window.devicePixelRatio||1,w=cm.clientWidth;if(!w)return;
+  S=w;H=cm.clientHeight;cm.width=S*dpr;cm.height=H*dpr;cm.getContext('2d').setTransform(dpr,0,0,dpr,0,0);
+  ce.width=ce.clientWidth*dpr;ce.height=ce.clientHeight*dpr;ce.getContext('2d').setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+window.addEventListener('resize',resize);
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',draw);
+setFn('sin');resize();
+window.addEventListener('DOMContentLoaded',()=>{expansionState='';expansion();});
+</script>
+</body>
+</html>
