@@ -4,22 +4,22 @@
 
 ## 高校生向け
 
-- [割線から接線へ](derivative_visualizer.html) — 2点を近づけ、点の周りを拡大しながら微分係数を考えます。
-- [論理式をゲームとして読む](logic_game.html) — 数を選ぶゲームで、「ある」「すべて」の意味と順番を考えます。
-- [いちごたっぷりパフェを選ぼう](secretary_problem_challenge.html) — パフェ選びを通して、決断のタイミングと37%ルールを探ります。
+- [割線から接線へ](https://kenshi-miyabe.github.io/math_interactive/derivative_visualizer.html) — 2点を近づけ、点の周りを拡大しながら微分係数を考えます。
+- [論理式をゲームとして読む](https://kenshi-miyabe.github.io/math_interactive/logic_game.html) — 数を選ぶゲームで、「ある」「すべて」の意味と順番を考えます。
+- [いちごたっぷりパフェを選ぼう](https://kenshi-miyabe.github.io/math_interactive/secretary_problem_challenge.html) — パフェ選びを通して、決断のタイミングと37%ルールを探ります。
 
 ## 大学生向け
 
 ### 微積分
 
-- [ε–δチャレンジ](epsilon_delta_challenge.html) — εに対してδを選び、連続性の定義を確かめます。
-- [テイラー展開ビジュアライザ](taylor_series_visualizer.html) — 次数と中心を動かし、多項式による関数の近似を見ます。
-- [リーマン積分をつくる](riemann_integral.html) — 分割と代表点を変え、リーマン和と積分の定義を確かめます。
+- [ε–δチャレンジ](https://kenshi-miyabe.github.io/math_interactive/epsilon_delta_challenge.html) — εに対してδを選び、連続性の定義を確かめます。
+- [テイラー展開ビジュアライザ](https://kenshi-miyabe.github.io/math_interactive/taylor_series_visualizer.html) — 次数と中心を動かし、多項式による関数の近似を見ます。
+- [リーマン積分をつくる](https://kenshi-miyabe.github.io/math_interactive/riemann_integral.html) — 分割と代表点を変え、リーマン和と積分の定義を確かめます。
 
 ### 確率・統計
 
-- [分散の推定をくらべる](variance_estimators.html) — 標本を繰り返し取り、標本分散と不偏分散を比較します。
-- [2次元正規分布をさわる](bivariate_normal_3d.html) — 平均・分散・相関を動かし、確率密度の3D曲面を見ます。
+- [分散の推定をくらべる](https://kenshi-miyabe.github.io/math_interactive/variance_estimators.html) — 標本を繰り返し取り、標本分散と不偏分散を比較します。
+- [2次元正規分布をさわる](https://kenshi-miyabe.github.io/math_interactive/bivariate_normal_3d.html) — 平均・分散・相関を動かし、確率密度の3D曲面を見ます。
 
 対象は目安です。高校生向けの教材にも、大学生向けの理論や発展問題を含みます。
 
