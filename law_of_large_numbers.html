@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大数の法則をさわる | さわる数学</title>
+<style>
+:root{--bg:#f5f7fa;--ink:#182c3c;--muted:#526675;--line:#d9e2e8;--green:#167667;--blue:#315ac5}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.75}header,main,footer{max-width:1280px;margin:auto;padding:24px}header{padding-bottom:0}.brand{font-size:14px;letter-spacing:.1em;color:var(--green);font-weight:700}h1{font-size:clamp(28px,4vw,42px);line-height:1.35;margin:10px 0}h2{font-size:20px;margin:0 0 10px}h3{font-size:16px;margin:0 0 6px}p{margin:8px 0}.muted,.small{color:var(--muted)}.small{font-size:13px}.layout{display:grid;grid-template-columns:290px minmax(0,1fr);gap:20px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;min-width:0}.settings{display:grid;gap:17px}label{display:block;font-size:14px;font-weight:650}input,select,button{font:inherit;color:inherit}select,input[type=number]{width:100%;border:1px solid #b9c9d4;background:#fff;border-radius:8px;padding:9px 11px}input[type=range]{width:100%;min-height:28px;accent-color:var(--green)}button{border:1px solid var(--line);border-radius:8px;padding:9px 14px;background:#eef3f7;cursor:pointer;font-weight:600}button:hover{background:#e1eaf1}button.primary{background:var(--green);color:#fff;border-color:var(--green)}button.primary:hover{background:#105e53}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:3px solid #7e9deb;outline-offset:3px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.spread{justify-content:space-between}.rule{border-top:1px solid var(--line);padding-top:17px}.model{background:#edf5f3;border-radius:10px;padding:12px 14px;font-size:14px}.model p{margin:4px 0}.value,output,td{font-variant-numeric:tabular-nums}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:15px 0 10px}.metric{border-left:2px solid var(--line);padding:0 12px}.metric:first-child{border-color:var(--green)}.metric>span{display:block;font-size:12px;color:var(--muted)}.metric strong{font-size:25px;line-height:1.4;font-weight:650}.chart-wrap{position:relative}canvas{width:100%;height:380px;display:block;touch-action:pan-y}.legend{display:flex;flex-wrap:wrap;gap:4px 15px;font-size:12px;margin:8px 0}.key{display:inline-block;width:20px;border-top:2px solid;vertical-align:middle;margin-right:5px}.truth{border-top:2px dashed var(--ink)}.checks{display:flex;gap:20px;flex-wrap:wrap;margin:10px 0}.checks label{font-weight:400}.checks input{accent-color:var(--green)}.scrub{margin-top:15px;padding-top:15px;border-top:1px solid var(--line)}.section{margin-top:20px}.explain{display:grid;grid-template-columns:1fr 1fr;gap:28px}.equation{font-family:Georgia,"Times New Roman",serif;font-size:23px;padding:12px 0;color:var(--green)}.note{border-left:3px solid var(--green);padding:8px 15px;background:#edf5f3;margin-top:16px}details{margin-top:16px}summary{font-weight:650;cursor:pointer}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}.error{color:#b23337;font-size:13px;min-height:0}.error:empty{display:none}a{color:var(--blue)}footer{font-size:13px;padding-top:0}#status{min-height:23px;margin-bottom:0}#hover{font-size:13px;min-height:23px;color:var(--muted)}@media(max-width:900px){.layout{grid-template-columns:1fr}.settings{grid-template-columns:1fr 1fr;gap:16px 24px}.settings h2,.settings .model,.settings .error{grid-column:1/-1}.rule{padding-top:0;border:0}.settings h2{margin-bottom:0}canvas{height:340px}}@media(max-width:550px){header,main,footer{padding:16px}.card{padding:16px}.settings,.explain{grid-template-columns:1fr}.metrics{gap:5px}.metric{padding:0 8px}.metric strong{font-size:20px}canvas{height:310px}.row button{flex:1}.checks{gap:8px 16px}}
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="assets/math-typeset.css">
+<script src="assets/math-typeset.js"></script>
+</head>
+<body>
+<header><div class="brand">さわる数学 / 確率・統計</div><h1>大数の法則をさわる</h1><p class="muted">偶然のばらつきから、ひとつの値へ。標本を増やして、平均のゆくえを見てみよう。</p></header>
+<main>
+<div class="layout">
+<section class="card settings" aria-label="実験の設定">
+<h2>実験の設定</h2>
+<div><label for="distribution">分布を選ぶ</label><select id="distribution"><option value="bernoulli">ベルヌーイ分布</option><option value="normal">正規分布</option><option value="exponential">指数分布</option><option value="uniform">一様分布</option><option value="poisson">ポアソン分布</option></select></div>
+<div id="parameter1"><label for="p1" id="p1label">成功確率 <span data-tex="p">p</span></label><input id="p1" type="number" min="0" max="1" step="0.05" value="0.5" required></div>
+<div id="parameter2" hidden><label for="p2" id="p2label">標準偏差 <span data-tex="\sigma ">σ</span></label><input id="p2" type="number" required></div>
+<div class="model"><p id="modelDescription"></p><p>期待値 <b id="meanLabel" class="value"></b></p><p class="small" id="varianceLabel"></p></div>
+<div class="rule"><label for="sampleSize">1本あたりの標本数 <span data-tex="N">N</span></label><select id="sampleSize"><option value="100">100</option><option value="1000" selected>1,000</option><option value="5000">5,000</option><option value="20000">20,000</option></select></div>
+<div><label for="paths">折れ線の本数：<output id="pathsValue">5</output> 本</label><input id="paths" type="range" min="1" max="12" step="1" value="5"><p class="small">1本ずつ、独立に標本を取り直します。</p></div>
+<p id="error" class="error" role="alert"></p>
+</section>
+<section class="card" aria-labelledby="chartTitle">
+<div class="row spread"><h2 id="chartTitle">標本平均は、どこへ近づく？</h2><span class="small">累積する平均の軌跡</span></div>
+<div class="metrics"><div class="metric"><span>期待値 <span data-tex="\mu ">μ</span></span><strong id="truthValue">0.5</strong></div><div class="metric"><span>いまの標本数 <span data-tex="n">n</span></span><strong id="currentN">1,000</strong></div><div class="metric"><span>1本目の標本平均</span><strong id="firstMean">—</strong></div></div>
+<div class="checks"><label><input id="logScale" type="checkbox"> 横軸を対数にする</label><label><input id="showBand" type="checkbox"> 平均のばらつきの目安</label></div>
+<div class="chart-wrap"><canvas id="chart" role="img" aria-label="各実験の標本平均と期待値の折れ線グラフ。数値は下の表でも確認できます。"></canvas></div>
+<div id="legend" class="legend"></div>
+<p id="hover">グラフ上にポインターを置くと、その標本数の値を確認できます。</p>
+<p id="bandNote" class="small" hidden>薄緑の帯は <span data-tex="\mu  \pm  \sigma /\sqrt{n}">μ ± σ/√n</span>（標本平均の標準偏差1つ分）。この帯にすべての線が入る保証や、常に約68%が入る保証はありません。</p>
+<div class="scrub"><div class="row spread"><label for="progress">観察する標本数 <span data-tex="n =">n =</span> <output id="progressValue">1,000</output></label><span class="small">スライダーで巻き戻す</span></div><input id="progress" type="range" min="1" max="1000" step="1" value="1000">
+<div class="row"><button type="button" class="primary" id="play">最初から再生</button><button type="button" id="resample">新しい乱数で実験</button></div>
+<p id="status" class="small" role="status" aria-live="polite"></p></div>
+<details><summary>各折れ線の数値を見る</summary><p class="small">選んだ標本数 <span data-tex="n">n</span> までの平均と、期待値との差です。</p><div class="table-wrap"><table><thead><tr><th>実験</th><th>標本平均</th><th>期待値との差</th></tr></thead><tbody id="results"></tbody></table></div></details>
+</section>
+</div>
+<section class="card section"><div class="explain"><div><h2>1本の線は、ひとつの実験</h2><p>選んだ分布から値 <span data-tex="X_{1}, X_{2}, \cdots ">X₁, X₂, …</span> を順に取り出し、そこまでの平均を計算します。横軸は標本数 <span data-tex="n">n</span>、縦軸は標本平均です。</p><div class="equation" data-display data-tex="\bar{X}_n=\frac{1}{n}\sum_{i=1}^{n}X_i"></div><p>色の違う線は、それぞれ別の標本列です。初めは大きく揺れていても、標本数を増やすと、期待値を表す破線の近くに集まっていきます。</p></div><div><h2>大数の法則が伝えること</h2><p>独立に同じ分布から標本を取り、<span data-tex="E[|X_{1}|]">E[|X₁|]</span> が有限なら、標本平均 <span data-tex="\bar{X}_{n}">X̄ₙ</span> は <span data-tex="n \to  \infty ">n → ∞</span> で期待値 <span data-tex="\mu ">μ</span> にほとんど確実に収束します。このページの5つの分布は、この条件を満たします。</p><p>ここではさらに分散 <span data-tex="\sigma ^{2}">σ²</span> も有限なので、標本平均の分散は <span data-tex="\sigma ^{2}/n">σ²/n</span>、標準偏差は <span data-tex="\sigma /\sqrt{n}">σ/√n</span> です。標本数を100倍にすると、標準偏差は<span data-tex="1/10">1/10</span>になります。</p></div></div>
+<div class="note"><b>いつも近づく、という意味ではありません。</b>途中で期待値から離れたり、同じ側に長く偏ったりすることもあります。有限回のシミュレーションは定理の証明ではなく、その振る舞いを観察する実験です。</div>
+<details><summary>試してみよう・実験の仕組み</summary><ol><li>ベルヌーイ分布の <span data-tex="p">p</span> を 0.5 と 0.05 にして比べる。1 の出る頻度と、平均の落ち着き方はどう変わる？</li><li>正規分布の平均を固定し、標準偏差を変える。破線と、線のばらつきはどう変わる？</li><li>指数分布の率 <span data-tex="\lambda ">λ</span> を変える。期待値は <span data-tex="\lambda ">λ</span> ではなく <span data-tex="1/\lambda ">1/λ</span> になることを確かめる。</li><li>横軸を対数にして、<span data-tex="n">n</span> が小さいときの変化を詳しく見る。新しい乱数で、何度も確かめる。</li></ol><p class="small">パラメータ・標本数・本数を変えると再計算します。同じ乱数の種を使い、各実験の乱数列は別々に生成します。同じ分布・パラメータで標本数や本数を増やしても、既存の標本列の続きとして比較できます。「新しい乱数で実験」で種を変えます。再生・巻き戻し・表示切り替えでは標本を取り直しません。縦軸は全 <span data-tex="N">N</span> 個の平均を含む範囲に固定されるため、再生中に目盛りは変わりません。乱数はブラウザ内で生成します。</p></details>
+</section>
+</main>
+<footer>さわる数学 · <a href="central_limit_theorem.html">中心極限定理をさわる</a> · <a href="variance_estimators.html">分散の推定をくらべる</a> · <a href="bivariate_normal_3d.html">2次元正規分布をさわる</a></footer>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const palette=['#315ac5','#b05b0c','#167667','#9346b0','#bf4366','#007d9b','#726211','#405387','#9a4531','#587c32','#6d5999','#246d66'];
+const configs={bernoulli:[['成功確率 p',0,1,.05,.5]],normal:[['平均 μ',-100,100,.1,0],['標準偏差 σ',.1,100,.1,1]],exponential:[['率 λ',.05,20,.05,1]],uniform:[['下端 a',-100,100,.1,0],['上端 b',-100,100,.1,1]],poisson:[['平均・率 λ',.1,20,.1,3]]};
+const fmt=x=>x===0?'0':Math.abs(x)<.0001||Math.abs(x)>=100000?x.toExponential(3):Number(x.toPrecision(5)).toString();
+const integer=x=>x.toLocaleString('ja-JP');
+let seed=20261015,experiment=null,frame=0,playing=false,lastTime=0,animationPosition=1,hoverN=null;
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function model(kind,a,b){
+ if(kind==='bernoulli')return{mean:a,variance:a*(1-a),description:'1 を確率 p、0 を確率 1−p で取ります。',draw:r=>r()<a?1:0};
+ if(kind==='normal')return{mean:a,variance:b*b,description:'N(μ, σ²)：μ は平均、σ は標準偏差です。',draw:r=>a+b*Math.sqrt(-2*Math.log(1-r()))*Math.cos(2*Math.PI*r())};
+ if(kind==='exponential')return{mean:1/a,variance:1/(a*a),description:'Exp(λ)：待ち時間のモデル。平均は 1/λ です。',draw:r=>-Math.log(1-r())/a};
+ if(kind==='uniform')return{mean:(a+b)/2,variance:(b-a)**2/12,description:`区間 [${fmt(a)}, ${fmt(b)}] で一様に値を取ります。`,draw:r=>a+(b-a)*r()};
+ return{mean:a,variance:a,description:'Poi(λ)：0, 1, 2, … の回数を取ります。',draw:r=>{const limit=Math.exp(-a);let p=1,k=0;do{k++;p*=r();}while(p>limit);return k-1;}};
+}
+function simulate(m,N,count,s){
+ const paths=[];let lo=m.mean,hi=m.mean;
+ for(let j=0;j<count;j++){const random=rng((s+Math.imul(j+1,0x9e3779b9))>>>0),means=new Float64Array(N);let mean=0;for(let i=0;i<N;i++){mean+=(m.draw(random)-mean)/(i+1);means[i]=mean;lo=Math.min(lo,mean);hi=Math.max(hi,mean);}paths.push(means);}
+ const pad=Math.max((hi-lo)*.12,Math.sqrt(m.variance)*.08,.05);return{m,N,paths,lo:lo-pad,hi:hi+pad};
+}
+function configure(){configs[$('distribution').value].forEach(([label,min,max,step,value],i)=>{const el=$('p'+(i+1));$('p'+(i+1)+'label').textContent=label;el.min=min;el.max=max;el.step=step;el.value=value;});$('parameter2').hidden=configs[$('distribution').value].length===1;}
+function stop(){cancelAnimationFrame(frame);playing=false;$('play').textContent=experiment&&+$('progress').value<experiment.N?'続きから再生':'最初から再生';}
+function run(){
+ stop();const kind=$('distribution').value,inputs=configs[kind].map((_,i)=>$('p'+(i+1)));
+ const invalid=inputs.find(el=>el.value.trim()===''||!Number.isFinite(+el.value)||+el.value<+el.min||+el.value>+el.max);
+ inputs.forEach(el=>el.removeAttribute('aria-invalid'));
+ let error=invalid?`${$(invalid.id+'label').textContent} を ${invalid.min} 以上 ${invalid.max} 以下で入力してください。`:'';
+ if(!error&&kind==='uniform'&&+$('p1').value>=+$('p2').value){error='一様分布の上端 b は、下端 a より大きくしてください。';$('p2').setAttribute('aria-invalid','true');}
+ if(invalid)invalid.setAttribute('aria-invalid','true');$('error').textContent=error;
+ $('play').disabled=$('resample').disabled=!!error;
+ if(error){$('status').textContent='設定に入力エラーがあります。グラフは直前の有効な設定です。';return false;}
+ const m=model(kind,+$('p1').value,+$('p2').value),N=+$('sampleSize').value;
+ experiment=simulate(m,N,+$('paths').value,seed);hoverN=null;
+ $('progress').max=N;$('progress').value=N;$('pathsValue').textContent=$('paths').value;
+ $('modelDescription').textContent=m.description;$('meanLabel').textContent=`μ = ${fmt(m.mean)}`;$('varianceLabel').textContent=`分散 σ² = ${fmt(m.variance)}`;$('truthValue').textContent=fmt(m.mean);
+ $('legend').innerHTML='<span><i class="key truth"></i>期待値 μ</span>'+experiment.paths.map((_,i)=>`<span><i class="key" style="border-color:${palette[i]}"></i>実験 ${i+1}</span>`).join('');
+ $('status').textContent=`${integer(N)} 個 × ${experiment.paths.length} 本の実験を表示しています。`;stop();render();return true;
+}
+function render(){
+ if(!experiment)return;const {m,N,paths}=experiment,n=+$('progress').value;
+ $('currentN').textContent=$('progressValue').textContent=integer(n);$('firstMean').textContent=fmt(paths[0][n-1]);
+ $('results').innerHTML=paths.map((p,j)=>`<tr><th><i class="key" style="border-color:${palette[j]}"></i>実験 ${j+1}</th><td>${fmt(p[n-1])}</td><td>${fmt(p[n-1]-m.mean)}</td></tr>`).join('');
+ const canvas=$('chart'),w=canvas.clientWidth,h=canvas.clientHeight,dpr=window.devicePixelRatio||1;if(w<=0)return;
+ window.MathTypeset?.clearCanvas(canvas);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+ const p={l:w<450?54:65,r:w-18,t:30,b:h-48},log=$('logScale').checked;
+ let {lo,hi}=experiment;const band=$('showBand').checked,sd=Math.sqrt(m.variance);
+ if(band){lo=Math.min(lo,m.mean-sd*1.1);hi=Math.max(hi,m.mean+sd*1.1);}
+ const X=k=>p.l+(log?Math.log(k)/Math.log(N):(k-1)/(N-1))*(p.r-p.l),Y=v=>p.b-(v-lo)/(hi-lo)*(p.b-p.t);
+ ctx.font='12px system-ui';ctx.textBaseline='middle';
+ for(let i=0;i<=4;i++){const y=lo+(hi-lo)*i/4;ctx.strokeStyle='#e2e8ee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.l,Y(y));ctx.lineTo(p.r,Y(y));ctx.stroke();ctx.fillStyle='#526675';ctx.textAlign='right';ctx.fillText(fmt(y),p.l-8,Y(y));}
+ const ticks=log?[1,10,100,1000,10000,N].filter((k,i,a)=>k<=N&&a.indexOf(k)===i):[1,...[.25,.5,.75,1].map(t=>Math.round(N*t))];
+ let previous=-Infinity;ticks.forEach(k=>{const x=X(k);if(x-previous<35&&k!==N)return;if(k!==N&&X(N)-x<35)return;previous=x;ctx.strokeStyle='#edf1f5';ctx.beginPath();ctx.moveTo(x,p.t);ctx.lineTo(x,p.b);ctx.stroke();ctx.fillStyle='#526675';ctx.textAlign=k===1?'left':k===N?'right':'center';ctx.fillText(integer(k),x,p.b+20);});
+ ctx.fillStyle='#526675';ctx.textAlign='left';ctx.fillText('標本平均 X̄ₙ',p.l,12);ctx.textAlign='center';ctx.fillText(log?'標本数 n（対数目盛）':'標本数 n',(p.l+p.r)/2,h-9);
+ ctx.save();ctx.beginPath();ctx.rect(p.l,p.t,p.r-p.l,p.b-p.t);ctx.clip();
+ // Keep each pixel column's extrema so even narrow early excursions remain visible.
+ function vertices(values,end){const points=[];let column=-1,first=0,last=0,min=0,max=0;function flush(){if(column<0)return;[...new Set([first,min,max,last])].sort((a,b)=>a-b).forEach(i=>points.push([X(i+1),Y(values[i])]));}for(let i=0;i<end;i++){const c=Math.floor(X(i+1));if(c!==column){flush();column=c;first=last=min=max=i;}else{last=i;if(values[i]<values[min])min=i;if(values[i]>values[max])max=i;}}flush();return points;}
+ if(band){ctx.fillStyle='#16766716';ctx.beginPath();for(let i=1;i<=n;i++){const x=X(i),y=Y(m.mean+sd/Math.sqrt(i));i===1?ctx.moveTo(x,y):ctx.lineTo(x,y);}for(let i=n;i>=1;i--)ctx.lineTo(X(i),Y(m.mean-sd/Math.sqrt(i)));ctx.closePath();ctx.fill();}
+ ctx.strokeStyle='#182c3c';ctx.lineWidth=1.7;ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(p.l,Y(m.mean));ctx.lineTo(p.r,Y(m.mean));ctx.stroke();ctx.setLineDash([]);
+ paths.forEach((values,j)=>{ctx.strokeStyle=palette[j];ctx.lineWidth=1.6;ctx.globalAlpha=.85;ctx.beginPath();vertices(values,n).forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=palette[j];ctx.beginPath();ctx.arc(X(n),Y(values[n-1]),3,0,2*Math.PI);ctx.fill();});ctx.globalAlpha=1;
+ if(hoverN!==null){const k=Math.min(hoverN,n);ctx.strokeStyle='#526675';ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(X(k),p.t);ctx.lineTo(X(k),p.b);ctx.stroke();ctx.setLineDash([]);$('hover').textContent=`n = ${integer(k)} ｜ 実験1の平均 ${fmt(paths[0][k-1])} ｜ 期待値との差 ${fmt(paths[0][k-1]-m.mean)}`;}else $('hover').textContent='グラフ上にポインターを置くと、その標本数の値を確認できます。';
+ ctx.restore();$('bandNote').hidden=!band;
+ canvas.setAttribute('aria-label',`標本数 ${n}、${paths.length} 本の標本平均。期待値 ${fmt(m.mean)}、実験1の平均 ${fmt(paths[0][n-1])}。各実験の値は下の「各折れ線の数値を見る」に掲載。`);
+}
+function tick(time){if(!playing)return;const elapsed=Math.min(time-lastTime,100);lastTime=time;animationPosition+=elapsed*experiment.N/6000;$('progress').value=Math.min(experiment.N,Math.floor(animationPosition));render();if(+$('progress').value>=experiment.N){stop();$('status').textContent='再生が完了しました。新しい乱数でも試してみましょう。';}else frame=requestAnimationFrame(tick);}
+$('distribution').addEventListener('change',()=>{configure();run();});
+for(const id of ['p1','p2','sampleSize','paths'])$(id).addEventListener('input',()=>{if(id==='paths')$('pathsValue').textContent=$('paths').value;run();});
+for(const id of ['logScale','showBand'])$(id).addEventListener('change',render);
+$('resample').addEventListener('click',()=>{seed=(seed+0x9e3779b9)>>>0;run();});
+$('progress').addEventListener('input',()=>{stop();hoverN=null;render();});
+$('play').addEventListener('click',()=>{if(playing){stop();$('status').textContent='一時停止中。スライダーでも標本数を動かせます。';return;}if(!experiment)return;if(+$('progress').value>=experiment.N)$('progress').value=1;animationPosition=+$('progress').value;playing=true;lastTime=performance.now();$('play').textContent='一時停止';$('status').textContent='標本を1つずつ増やしたときの平均を再生しています。';render();frame=requestAnimationFrame(tick);});
+$('chart').addEventListener('pointermove',event=>{if(!experiment)return;const rect=$('chart').getBoundingClientRect(),left=rect.width<450?54:65,t=Math.max(0,Math.min(1,(event.clientX-rect.left-left)/(rect.width-18-left)));hoverN=Math.round($('logScale').checked?Math.exp(t*Math.log(experiment.N)):1+t*(experiment.N-1));render();});
+$('chart').addEventListener('pointerleave',()=>{hoverN=null;render();});
+new ResizeObserver(()=>render()).observe($('chart').parentElement);
+configure();run();
+</script>
+</body>
+</html>

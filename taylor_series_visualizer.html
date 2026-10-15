@@ -28,7 +28,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 input[type=range]{accent-color:var(--accent);flex:1;min-width:140px}
 .big{font-size:1.15rem;font-weight:600;font-variant-numeric:tabular-nums;min-width:4.5em}
 .leg{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.82rem;margin-top:8px}
-.leg span:before{content:"";display:inline-block;width:18px;height:3px;margin-right:6px;vertical-align:middle;background:var(--c)}
+.leg>span:before{content:"";display:inline-block;width:18px;height:3px;margin-right:6px;vertical-align:middle;background:var(--c)}
 .info{font-size:.9rem;line-height:1.8;font-variant-numeric:tabular-nums}
 .f{font-family:Georgia,"Times New Roman",serif;font-size:1.02rem;overflow-x:auto;white-space:nowrap}
 h2{font-size:.9rem;margin:0 0 6px}
@@ -39,25 +39,28 @@ h2{font-size:.9rem;margin:0 0 6px}
 #progress{margin:6px 0;color:var(--poly);font-weight:600}
 #expansionNote{margin:8px 0 0;font-size:.82rem;color:var(--muted)}
 </style>
+
+<link rel="stylesheet" href="assets/math-typeset.css">
+<script src="assets/math-typeset.js"></script>
 </head>
 <body>
 <main>
-<h1>テイラー展開：<span id="titleFunction">sin x</span></h1>
-<div id="titleFormula" class="math">Pₙ(x) = Σₖ₌₀ⁿ f⁽ᵏ⁾(a)/k! · (x − a)ᵏ</div>
-<p class="sub">次数 n を増やすと、中心 a のまわりで多項式が関数に近づいていきます。</p>
+<h1>テイラー展開：<span id="titleFunction"><span data-tex="\sin  x">sin x</span></span></h1>
+<div id="titleFormula" class="math"><span data-tex="P_{n}(x) = \sum _{k=0}^{n} f^{(k)}(a)/k! \cdot  (x - a)^{k}">Pₙ(x) = Σₖ₌₀ⁿ f⁽ᵏ⁾(a)/k! · (x − a)ᵏ</span></div>
+<p class="sub">次数 <span data-tex="n">n</span> を増やすと、中心 <span data-tex="a">a</span> のまわりで多項式が関数に近づいていきます。</p>
 
 <div class="panel">
   <div class="row">
     <label>関数 <select id="fs"></select></label>
     <button id="play">▶ 自動再生</button>
-    <button id="reset">n = 0</button>
+    <button id="reset"><span data-tex="n = 0">n = 0</span></button>
   </div>
   <div class="row" style="margin-top:10px">
-    <span>次数 n</span><span class="big" id="nv">0</span>
+    <span>次数 <span data-tex="n">n</span></span><span class="big" id="nv">0</span>
     <input id="ns" type="range" min="0" max="20" step="1" value="0" aria-label="次数 n">
   </div>
   <div class="row" style="margin-top:6px">
-    <span>中心 a</span><span class="big" id="av">0.00</span>
+    <span>中心 <span data-tex="a">a</span></span><span class="big" id="av">0.00</span>
     <input id="as" type="range" min="-5" max="5" step="0.05" value="0" aria-label="中心 a">
   </div>
 </div>
@@ -73,14 +76,14 @@ h2{font-size:.9rem;margin:0 0 6px}
 <div class="panel">
   <canvas id="cm"></canvas>
   <div class="leg">
-    <span style="--c:var(--fg)">f(x)</span><span style="--c:var(--poly)">Pₙ(x)</span><span style="--c:var(--old)">P₀〜Pₙ₋₁（薄く）</span><span style="--c:var(--accent)">収束域</span>
+    <span style="--c:var(--fg)"><span data-tex="f(x)">f(x)</span></span><span style="--c:var(--poly)"><span data-tex="P_{n}(x)">Pₙ(x)</span></span><span style="--c:var(--old)"><span data-tex="P_{0}\ldots P_{n-1}">P₀〜Pₙ₋₁</span>（薄く）</span><span style="--c:var(--accent)">収束域</span>
   </div>
-  <p class="sub" style="margin:8px 0 0">グラフ上でマウスを動かすと x を調べられます。中心の点（○）をドラッグすると a を動かせます。</p>
+  <p class="sub" style="margin:8px 0 0">グラフ上でマウスを動かすと <span data-tex="x">x</span> を調べられます。中心の点（○）をドラッグすると <span data-tex="a">a</span> を動かせます。</p>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="cols">
   <div class="panel info" id="info"></div>
-  <div class="panel"><h2>調べている x での誤差 |f(x) − Pₖ(x)|（対数）</h2><canvas id="ce"></canvas></div>
+  <div class="panel"><h2>調べている <span data-tex="x">x</span> での誤差 <span data-tex="|f(x) - P_{k}(x)|">|f(x) − Pₖ(x)|</span>（対数）</h2><canvas id="ce"></canvas></div>
 </div>
 <style>@media(max-width:760px){.cols{grid-template-columns:1fr!important}}</style>
 </main>
@@ -159,7 +162,7 @@ function info(c,fv,pv){
   $('#info').innerHTML=`<h2>調べている点での値</h2>
   <div>中心 a = ${a.toFixed(2)}、x = <b>${xp.toFixed(2)}</b></div>
   <div>f(x) = ${isFinite(fv)?fv.toFixed(5):'定義域外'}</div>
-  <div>P<sub>${n}</sub>(x) = ${isFinite(pv)?pv.toFixed(5):'—'}</div>
+  <div data-tex="P_{${n}}(x)=${isFinite(pv)?pv.toFixed(5):'\\text{—}'}"></div>
   <div>誤差 = <b>${isFinite(fv)&&isFinite(pv)?Math.abs(fv-pv).toExponential(2):'—'}</b></div>
   <div style="color:var(--muted)">${isFinite(R)?`収束半径 = ${R.toFixed(2)}（中心から特異点までの距離）。|x−a| がこれより大きいと、n を増やしても発散します。`:'どの x でも収束します（収束半径 ∞）。'}</div>`;
 }

@@ -1,0 +1,10 @@
+/* Shared formula layout. Long display equations scroll within their own panel. */
+.math-tex{font-style:normal}
+.math-tex .katex{font-size:1.05em}
+[data-tex][data-display],.equation{overflow-x:auto;max-width:100%;overflow-wrap:normal}
+.katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:3px 0}
+.equation .katex-display{margin:.25em 0}
+.canvas-math{white-space:nowrap;pointer-events:none;line-height:1.2;z-index:2}
+.canvas-math .katex{font-size:1em}
+.formula .quant .katex{font-size:1em}
+.math-error{color:#b23337}

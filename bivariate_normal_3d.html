@@ -8,6 +8,11 @@
 :root{--bg:#f3f6f8;--card:#fff;--ink:#14262f;--muted:#60727a;--line:#d6e0e4;--teal:#087b78;--teal-dark:#075b59;--blue:#315fab;--warm:#e7a63f;--shadow:0 16px 42px rgba(20,48,58,.08)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;line-height:1.65}header,main,footer{max-width:1180px;margin:auto;padding-left:22px;padding-right:22px}header{padding-top:28px;padding-bottom:16px}.brand{color:var(--teal-dark);font-size:13px;font-weight:700;letter-spacing:.12em}h1{font-size:clamp(29px,4vw,45px);line-height:1.25;margin:7px 0 5px;letter-spacing:-.025em}h2{font-size:18px;margin:0}.subtitle{color:var(--muted);margin:0}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(310px,.8fr);gap:18px;align-items:start}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}.plot-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line)}.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}canvas{display:block;width:100%;height:510px;cursor:grab;touch-action:none;background:linear-gradient(180deg,#f9fcfd 0%,#e9f2f3 100%)}canvas.dragging{cursor:grabbing}.plot-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}button{font:inherit;border:1px solid var(--line);background:#f4f8f9;color:var(--ink);border-radius:9px;padding:6px 10px;cursor:pointer}button:hover{background:#e8f1f2}button:focus-visible,input:focus-visible{outline:3px solid #8bc9c6;outline-offset:2px}.controls{padding:18px}.group{padding-bottom:17px;margin-bottom:17px;border-bottom:1px solid var(--line)}.group:last-child{border:0;margin-bottom:0;padding-bottom:0}.group-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;font-size:14px;font-weight:700}.control{margin:12px 0}.label-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}.value{font-variant-numeric:tabular-nums;font-weight:700;color:var(--teal-dark);background:#eaf5f4;border-radius:7px;padding:1px 7px;min-width:48px;text-align:right}input[type=range]{width:100%;margin:7px 0 0;accent-color:var(--teal)}.ticks{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:-3px}.matrix-wrap{background:#f5f8f9;border-radius:13px;padding:13px 10px;text-align:center}.matrix-label{font-size:12px;color:var(--muted);margin-bottom:7px}.matrix{display:inline-grid;grid-template-columns:auto repeat(2,minmax(70px,auto)) auto;align-items:center;column-gap:8px;font-family:Georgia,"Times New Roman",serif;font-size:18px;font-variant-numeric:tabular-nums}.bracket{font-size:50px;font-weight:300;line-height:.9;color:var(--muted);transform:scaleX(.6)}.matrix span:not(.bracket){padding:3px 6px}.formula{font-family:Georgia,"Times New Roman",serif;font-size:15px;text-align:center;overflow-wrap:anywhere}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.stat{border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;font-size:11px;color:var(--muted)}.stat strong{display:block;color:var(--ink);font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}.tip{margin:0;color:var(--muted);font-size:12px}footer{padding-top:24px;padding-bottom:30px;color:var(--muted);font-size:13px}a{color:var(--blue)}@media(max-width:850px){.layout{grid-template-columns:1fr}canvas{height:430px}header,main,footer{padding-left:14px;padding-right:14px}}@media(max-width:440px){canvas{height:350px}.plot-head{align-items:flex-start}.plot-foot{align-items:flex-start;flex-direction:column}.matrix{grid-template-columns:auto repeat(2,minmax(60px,auto));column-gap:4px}.bracket{font-size:44px}}
 </style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="assets/math-typeset.css">
+<script src="assets/math-typeset.js"></script>
 </head>
 <body>
 <header>
@@ -18,37 +23,34 @@
 <main>
   <div class="layout">
     <section class="card" aria-label="2次元正規分布の3Dグラフ">
-      <div class="plot-head"><h2>確率密度 f(x, y)</h2><span class="badge">ドラッグで回転</span></div>
+      <div class="plot-head"><h2>確率密度 <span data-tex="f(x, y)">f(x, y)</span></h2><span class="badge">ドラッグで回転</span></div>
       <canvas id="densityCanvas" role="img" aria-label="2次元正規分布の確率密度を表す3D曲面"></canvas>
       <div class="plot-foot"><span>ドラッグ：回転　ホイール：拡大・縮小</span><button id="resetView" type="button">視点を戻す</button></div>
     </section>
     <aside class="card controls" aria-label="分布のパラメータ">
       <div class="group">
-        <div class="group-title"><span>期待値</span><span>μ = (<span id="muVector">0.0, 0.0</span>)</span></div>
-        <div class="control"><div class="label-row"><label for="muX">μ<sub>x</sub></label><output class="value" id="muXValue">0.0</output></div><input id="muX" type="range" min="-3" max="3" step="0.1" value="0"><div class="ticks"><span>−3</span><span>0</span><span>3</span></div></div>
-        <div class="control"><div class="label-row"><label for="muY">μ<sub>y</sub></label><output class="value" id="muYValue">0.0</output></div><input id="muY" type="range" min="-3" max="3" step="0.1" value="0"><div class="ticks"><span>−3</span><span>0</span><span>3</span></div></div>
+        <div class="group-title"><span>期待値</span><span><span data-tex="\mu  = (">μ = (</span><span id="muVector">0.0, 0.0</span>)</span></div>
+        <div class="control"><div class="label-row"><label for="muX"><span data-tex="\mu_x"></span></label><output class="value" id="muXValue">0.0</output></div><input id="muX" type="range" min="-3" max="3" step="0.1" value="0"><div class="ticks"><span>−3</span><span>0</span><span>3</span></div></div>
+        <div class="control"><div class="label-row"><label for="muY"><span data-tex="\mu_y"></span></label><output class="value" id="muYValue">0.0</output></div><input id="muY" type="range" min="-3" max="3" step="0.1" value="0"><div class="ticks"><span>−3</span><span>0</span><span>3</span></div></div>
       </div>
       <div class="group">
         <div class="group-title"><span>分散</span><span>山の広がり</span></div>
-        <div class="control"><div class="label-row"><label for="varX">σ<sub>x</sub>²</label><output class="value" id="varXValue">1.00</output></div><input id="varX" type="range" min="0.2" max="2.5" step="0.05" value="1"><div class="ticks"><span>0.2</span><span>1.35</span><span>2.5</span></div></div>
-        <div class="control"><div class="label-row"><label for="varY">σ<sub>y</sub>²</label><output class="value" id="varYValue">1.00</output></div><input id="varY" type="range" min="0.2" max="2.5" step="0.05" value="1"><div class="ticks"><span>0.2</span><span>1.35</span><span>2.5</span></div></div>
+        <div class="control"><div class="label-row"><label for="varX"><span data-tex="\sigma_x^2"></span></label><output class="value" id="varXValue">1.00</output></div><input id="varX" type="range" min="0.2" max="2.5" step="0.05" value="1"><div class="ticks"><span>0.2</span><span>1.35</span><span>2.5</span></div></div>
+        <div class="control"><div class="label-row"><label for="varY"><span data-tex="\sigma_y^2"></span></label><output class="value" id="varYValue">1.00</output></div><input id="varY" type="range" min="0.2" max="2.5" step="0.05" value="1"><div class="ticks"><span>0.2</span><span>1.35</span><span>2.5</span></div></div>
       </div>
       <div class="group">
-        <div class="group-title"><label for="rho">相関係数 ρ</label><output class="value" id="rhoValue">0.00</output></div>
+        <div class="group-title"><label for="rho">相関係数 <span data-tex="\rho ">ρ</span></label><output class="value" id="rhoValue">0.00</output></div>
         <input id="rho" type="range" min="-0.95" max="0.95" step="0.05" value="0"><div class="ticks"><span>−0.95</span><span>0</span><span>0.95</span></div>
       </div>
       <div class="group">
         <div class="matrix-wrap" aria-live="polite">
-          <div class="matrix-label">分散共分散行列 Σ</div>
-          <div class="matrix" aria-label="分散共分散行列">
-            <span class="bracket">[</span><span id="m11">1.000</span><span id="m12">0.000</span>
-            <span class="bracket">]</span><span></span><span id="m21">0.000</span><span id="m22">1.000</span><span></span>
-          </div>
+          <div class="matrix-label">分散共分散行列 <span data-tex="\Sigma ">Σ</span></div>
+          <div id="covMatrix" aria-label="分散共分散行列" data-tex="\Sigma=\begin{pmatrix}1&0\\0&1\end{pmatrix}"></div>
         </div>
         <div class="stats"><div class="stat">共分散<strong id="covValue">0.000</strong></div><div class="stat">頂点の密度<strong id="peakValue">0.1592</strong></div></div>
       </div>
-      <div class="group formula">f(x,y) = <span id="formulaText">1 / (2π√|Σ|) · exp(−½(z−μ)ᵀΣ⁻¹(z−μ))</span></div>
-      <p class="tip">ρ が 0 から離れるほど、山のすそは斜め方向に伸びます。正なら右上がり、負なら右下がりです。</p>
+      <div class="group formula" data-display data-tex="f(x,y)=\frac{\exp\!\left(-\frac{1}{2}(z-\mu)^{\mathsf T}\Sigma^{-1}(z-\mu)\right)}{2\pi\sqrt{\det\Sigma}},\quad z=\begin{pmatrix}x\\y\end{pmatrix}"></div>
+      <p class="tip"><span data-tex="\rho ">ρ</span> が 0 から離れるほど、山のすそは斜め方向に伸びます。正なら右上がり、負なら右下がりです。</p>
     </aside>
   </div>
 </main>
@@ -79,7 +81,7 @@ function updateLabels(){
   $('muXValue').value=params.muX.toFixed(1);$('muYValue').value=params.muY.toFixed(1);
   $('varXValue').value=params.varX.toFixed(2);$('varYValue').value=params.varY.toFixed(2);$('rhoValue').value=signed(params.rho,2);
   $('muVector').textContent=`${params.muX.toFixed(1)}, ${params.muY.toFixed(1)}`;
-  $('m11').textContent=params.varX.toFixed(3);$('m12').textContent=signed(cov,3);$('m21').textContent=signed(cov,3);$('m22').textContent=params.varY.toFixed(3);
+  $('covMatrix').dataset.tex=String.raw`\Sigma=\begin{pmatrix}${params.varX.toFixed(3)}&${signed(cov,3)}\\${signed(cov,3)}&${params.varY.toFixed(3)}\end{pmatrix}`;window.MathTypeset?.render($('covMatrix'));
   $('covValue').textContent=signed(cov,3);$('peakValue').textContent=(1/(2*Math.PI*Math.sqrt(det))).toFixed(4);
   draw();
 }

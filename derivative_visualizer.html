@@ -19,6 +19,9 @@ button,input,select{font:inherit}button,select,input[type=number]{background:var
 .zoom{border-top:1px solid var(--line);padding-top:10px;margin-top:8px}.value{font-variant-numeric:tabular-nums;font-weight:600}.readout{padding:8px 12px;background:var(--soft);border-radius:6px;margin-top:10px}.msg{border-left:3px solid var(--accent);padding:8px 12px;background:var(--soft);margin-top:10px;font-size:.9rem}.msg.good{border-color:var(--tangent)}.msg.bad{border-color:var(--point)}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.85rem}th,td{text-align:right;padding:5px 8px;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}tr.now{background:var(--soft)}details{border-top:1px solid var(--line);padding-top:8px;margin-top:12px}summary{cursor:pointer;font-weight:600}.zoom .note{margin:6px 0 0}footer{margin-top:16px}
 @media(max-width:850px){main{grid-template-columns:1fr}.visual{position:static}.steps button{font-size:.85rem}.wrap{padding:16px 12px}.panel{padding:12px}}
 </style>
+
+<link rel="stylesheet" href="assets/math-typeset.css">
+<script src="assets/math-typeset.js"></script>
 </head>
 <body><div class="wrap">
 <header><h1>割線から接線へ</h1><p class="note">2点を通る直線の傾きから、「その場所での傾き」を見つけよう。</p></header>
@@ -29,15 +32,15 @@ button,input,select{font:inherit}button,select,input[type=number]{background:var
 <section class="visual panel" aria-label="グラフと拡大操作">
 <div id="functionFormula" class="math"></div>
 <canvas id="graph" width="720" height="520" role="img" aria-label="曲線上の点Aと点B、その2点を通る割線"></canvas>
-<div class="legend"><span style="--c:var(--curve)">関数の曲線</span><span style="--c:var(--secant)">A・Bを通る割線</span><span id="otherLegend" style="--c:var(--other)" hidden>A・Cを通る反対側の割線</span><span id="tangentLegend" style="--c:var(--tangent)" hidden>接線</span></div>
+<div class="legend"><span style="--c:var(--curve)">関数の曲線</span><span style="--c:var(--secant)"><span data-tex="A">A</span>・<span data-tex="B">B</span>を通る割線</span><span id="otherLegend" style="--c:var(--other)" hidden><span data-tex="A">A</span>・<span data-tex="C">C</span>を通る反対側の割線</span><span id="tangentLegend" style="--c:var(--tangent)" hidden>接線</span></div>
 <div id="coordinates" class="math"></div>
-<p class="note" id="pointNote">点Bをドラッグして動かすこともできます。</p>
+<p class="note" id="pointNote">点<span data-tex="B">B</span>をドラッグして動かすこともできます。</p>
 <div class="zoom">
-<div class="control-head"><label for="zoomRange">点Aの周りを拡大</label><span id="zoomValue" class="value"></span></div>
+<div class="control-head"><label for="zoomRange">点<span data-tex="A">A</span>の周りを拡大</label><span id="zoomValue" class="value"></span></div>
 <input id="zoomRange" type="range" min="0" max="3" step="0.01" value="0" aria-label="点Aを中心とする拡大倍率（1〜1000倍）">
 <div class="row"><button id="zoomIn">＋ 拡大</button><button id="zoomOut">− 縮小</button><button id="zoomReset">全体を見る</button></div>
-<label class="choice"><input id="followZoom" type="checkbox">Bが近づくのに合わせて自動で拡大</label>
-<p class="note">中心はいつもAです。拡大しても2点の座標は変わりません。滑らかな曲線が、Aの近くでどんな形に見えるか観察しましょう。</p>
+<label class="choice"><input id="followZoom" type="checkbox"><span data-tex="B">B</span>が近づくのに合わせて自動で拡大</label>
+<p class="note">中心はいつも<span data-tex="A">A</span>です。拡大しても2点の座標は変わりません。滑らかな曲線が、<span data-tex="A">A</span>の近くでどんな形に見えるか観察しましょう。</p>
 <p id="viewport" class="note"></p>
 </div>
 </section>
@@ -46,27 +49,27 @@ button,input,select{font:inherit}button,select,input[type=number]{background:var
 <select id="functionSelect"><option value="quadratic">x²（基本）</option><option value="cubic">x³</option><option value="cubicMinus">x³ − x</option><option value="sin">sin x</option><option value="wave">1 + sin x</option><option value="absolute">|x|（とがった点を調べる）</option></select>
 <section id="step1">
 <h2 style="margin-top:14px">2点を通る直線とは？</h2>
-<p>曲線上に、横の位置が違う2点A・Bをとります。</p>
+<p>曲線上に、横の位置が違う2点<span data-tex="A">A</span>・<span data-tex="B">B</span>をとります。</p>
 <div class="math" data-tex="A=(a,f(a)),\qquad B=(a+h,f(a+h)),\quad h\ne0"></div>
-<p>「2点を通る」とは、<b>AもBもその直線の上にある</b>という意味です。2点が決まると、両方を通る直線は1本に決まります。AとBの間だけの線分ではなく、両側へ延ばした直線で、これを<b>割線</b>と呼びます。</p>
+<p>「2点を通る」とは、<b><span data-tex="A">A</span>も<span data-tex="B">B</span>もその直線の上にある</b>という意味です。2点が決まると、両方を通る直線は1本に決まります。<span data-tex="A">A</span>と<span data-tex="B">B</span>の間だけの線分ではなく、両側へ延ばした直線で、これを<b>割線</b>と呼びます。</p>
 <p>たとえば、二次関数で次の2点をとると、割線はこの式になります。</p>
 <div class="math" data-tex="f(x)=x^2,\quad A=(1,1),\ B=(2,4)\quad\Longrightarrow\quad y=3x-2"></div>
-<p>この式にAとBそれぞれの横の座標を入れると、縦の座標が確かめられます。</p>
+<p>この式に<span data-tex="A">A</span>と<span data-tex="B">B</span>それぞれの横の座標を入れると、縦の座標が確かめられます。</p>
 <div class="math" data-tex="3\cdot1-2=1,\qquad3\cdot2-2=4"></div>
-<p><b>BをAに近づけたら、割線の傾きはどうなると思う？</b></p>
+<p><b><span data-tex="B">B</span>を<span data-tex="A">A</span>に近づけたら、割線の傾きはどうなると思う？</b></p>
 <label class="choice"><input type="radio" name="prediction" value="limit">決まった値に近づく</label>
 <label class="choice"><input type="radio" name="prediction" value="different">左右で違う値に近づくことがある</label>
-<p class="note">予想したら実際に試しましょう。関数とAの位置によって、結果は変わります。</p>
+<p class="note">予想したら実際に試しましょう。関数と<span data-tex="A">A</span>の位置によって、結果は変わります。</p>
 <button class="primary" id="toExplore">動かして確かめる →</button>
 </section>
 <section id="step2" hidden>
-<h2 style="margin-top:14px">BをAに近づけてみよう</h2>
+<h2 style="margin-top:14px"><span data-tex="B">B</span>を<span data-tex="A">A</span>に近づけてみよう</h2>
 <p class="note">まずは二次関数で試します。傾きを観察したら、左側からも近づけ、拡大して曲線の形を見てみましょう。</p>
 </section>
 <div id="controls" hidden>
-<div class="control"><div class="control-head"><label for="aRange">Aの横の座標</label><span id="aValue" class="value"></span></div><input id="aRange" type="range" min="-2" max="2" step="0.1" value="1"></div>
-<div class="control"><div class="control-head"><label for="hRange">AからBまでの横の変化</label><span id="hValue" class="value"></span></div><input id="hRange" type="range" min="0" max="1000" step="1" value="1000"><div class="control-head note"><span>近い（0.0001）</span><span>離れている（1）</span></div></div>
-<div class="actions"><button id="half">距離を半分に</button><button id="flip">反対側から近づける</button><button id="auto">▶ 自動で近づける</button><button id="apart">2点を離す</button><button id="coincide">BをAと重ねる</button></div>
+<div class="control"><div class="control-head"><label for="aRange"><span data-tex="A">A</span>の横の座標</label><span id="aValue" class="value"></span></div><input id="aRange" type="range" min="-2" max="2" step="0.1" value="1"></div>
+<div class="control"><div class="control-head"><label for="hRange"><span data-tex="A">A</span>から<span data-tex="B">B</span>までの横の変化</label><span id="hValue" class="value"></span></div><input id="hRange" type="range" min="0" max="1000" step="1" value="1000"><div class="control-head note"><span>近い（0.0001）</span><span>離れている（1）</span></div></div>
+<div class="actions"><button id="half">距離を半分に</button><button id="flip">反対側から近づける</button><button id="auto">▶ 自動で近づける</button><button id="apart">2点を離す</button><button id="coincide"><span data-tex="B">B</span>を<span data-tex="A">A</span>と重ねる</button></div>
 <label class="choice"><input id="compareBoth" type="checkbox">左右の割線を同時に見る</label>
 <label class="choice"><input id="showTangent" type="checkbox">接線と比べる（答えを見る）</label>
 <div class="readout"><div id="secantEquation" class="math"></div><div id="slopeReadout" class="math"></div><p id="zeroNote" class="note" aria-live="polite"></p><div id="tangentEquation" class="math" hidden></div></div>
@@ -81,24 +84,24 @@ button,input,select{font:inherit}button,select,input[type=number]{background:var
 <section id="step3" hidden>
 <h2 style="margin-top:14px">割線の傾きから微分係数へ</h2>
 <h3>1．横の変化と縦の変化を比べる</h3>
-<p>AからBまでの横の変化は、Bの横の座標からAの横の座標を引いた値です。縦の変化も同じように引きます。</p>
+<p><span data-tex="A">A</span>から<span data-tex="B">B</span>までの横の変化は、<span data-tex="B">B</span>の横の座標から<span data-tex="A">A</span>の横の座標を引いた値です。縦の変化も同じように引きます。</p>
 <div class="math" data-tex="\Delta x=(a+h)-a=h,\qquad\Delta y=f(a+h)-f(a)"></div>
 <div class="math" data-tex="m_h=\frac{\Delta y}{\Delta x}=\frac{f(a+h)-f(a)}{h}\quad(h\ne0)"></div>
-<p>この傾きと、直線がAを通るという条件から、割線の式が書けます。Bの座標を代入しても、この式が成り立ちます。</p>
+<p>この傾きと、直線が<span data-tex="A">A</span>を通るという条件から、割線の式が書けます。<span data-tex="B">B</span>の座標を代入しても、この式が成り立ちます。</p>
 <div class="math" data-tex="y-f(a)=m_h(x-a)"></div>
 <div class="math" data-tex="f(a+h)-f(a)=m_h\bigl((a+h)-a\bigr)=m_h\,h"></div>
-<h3>2．Bを近づけると、その場所の傾きが見える</h3>
-<p>Bを左右のどちらから近づけても、割線の傾きが同じ値に近づくなら、その値をAでの<b>微分係数</b>と呼びます。対応する直線が<b>接線</b>です。</p>
+<h3>2．<span data-tex="B">B</span>を近づけると、その場所の傾きが見える</h3>
+<p><span data-tex="B">B</span>を左右のどちらから近づけても、割線の傾きが同じ値に近づくなら、その値を<span data-tex="A">A</span>での<b>微分係数</b>と呼びます。対応する直線が<b>接線</b>です。</p>
 <div class="math" data-tex="f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h},\qquad y-f(a)=f'(a)(x-a)"></div>
-<p class="note">hに0を代入する計算ではありません。AとBは別々の点のまま、間隔を0に近づけます。拡大すると、微分できる曲線はAの周りで接線に近い形に見えます。</p>
+<p class="note"><span data-tex="h">h</span>に0を代入する計算ではありません。<span data-tex="A">A</span>と<span data-tex="B">B</span>は別々の点のまま、間隔を0に近づけます。拡大すると、微分できる曲線は<span data-tex="A">A</span>の周りで接線に近い形に見えます。</p>
 <h3>3．今の関数では？</h3>
 <div id="explanation"></div>
-<p>とがった点も試しましょう。絶対値の関数でAの横の座標を0にすると、右側の傾きは1、左側は−1になります。拡大してもとがった形が残り、微分係数は存在しません。</p>
+<p>とがった点も試しましょう。絶対値の関数で<span data-tex="A">A</span>の横の座標を0にすると、右側の傾きは1、左側は−1になります。拡大してもとがった形が残り、微分係数は存在しません。</p>
 <button id="back">もう一度動かして確かめる</button>
 </section>
 </div>
 </main>
-<footer class="row"><span class="note">基本は二次関数、Aの横の座標1から。</span><button id="reset">最初からやり直す</button></footer>
+<footer class="row"><span class="note">基本は二次関数、<span data-tex="A">A</span>の横の座標1から。</span><button id="reset">最初からやり直す</button></footer>
 </div>
 <script>
 (()=>{

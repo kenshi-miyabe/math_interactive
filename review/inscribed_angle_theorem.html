@@ -47,6 +47,11 @@
             transform: translateY(0);
         }
     </style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../assets/math-typeset.css">
+<script src="../assets/math-typeset.js"></script>
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
 
@@ -76,7 +81,7 @@
             </div>
             <div class="mt-3 text-xs text-slate-400 flex items-center gap-2">
                 <span class="inline-block w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
-                <span>黄色の点 <strong class="text-amber-300">P</strong> をドラッグして上側の弧の上を動かせます</span>
+                <span>黄色の点 <strong class="text-amber-300"><span data-tex="P">P</span></strong> をドラッグして上側の弧の上を動かせます</span>
             </div>
         </div>
 
@@ -90,22 +95,22 @@
                     <h2>まずは予想してみよう</h2>
                 </div>
                 <p class="text-sm text-slate-300 leading-relaxed">
-                    点 <strong class="text-amber-300">P</strong> を上側の弧の上で左右に自由に動かすと、<br>
-                    青色の <strong class="text-cyan-300">円周角 (∠APB)</strong> の大きさはどうなると思いますか？
+                    点 <strong class="text-amber-300"><span data-tex="P">P</span></strong> を上側の弧の上で左右に自由に動かすと、<br>
+                    青色の <strong class="text-cyan-300">円周角 (<span data-tex="\angle APB"></span>)</strong> の大きさはどうなると思いますか？
                 </p>
 
                 <div class="space-y-2 pt-2">
                     <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 cursor-pointer text-sm transition">
                         <input type="radio" name="predict" value="A" class="w-4 h-4 text-blue-500">
-                        <span>A. Pの位置によって大きくなったり小さくなったりする</span>
+                        <span><span data-tex="A. P">A. P</span>の位置によって大きくなったり小さくなったりする</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 cursor-pointer text-sm transition">
                         <input type="radio" name="predict" value="B" class="w-4 h-4 text-blue-500">
-                        <span>B. どこに動かしても大きさは変わらない</span>
+                        <span><span data-tex="B">B</span>. どこに動かしても大きさは変わらない</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 cursor-pointer text-sm transition">
                         <input type="radio" name="predict" value="C" class="w-4 h-4 text-blue-500">
-                        <span>C. 端に近づくほど大きくなる</span>
+                        <span><span data-tex="C">C</span>. 端に近づくほど大きくなる</span>
                     </label>
                 </div>
 
@@ -123,25 +128,25 @@
                 </div>
 
                 <p class="text-sm text-slate-300">
-                    画面の点 <strong class="text-amber-300">P</strong> をドラッグして左右に動かしてみましょう！
+                    画面の点 <strong class="text-amber-300"><span data-tex="P">P</span></strong> をドラッグして左右に動かしてみましょう！
                 </p>
 
                 <!-- 角度数値の表示カード（高コントラスト化） -->
                 <div class="grid grid-cols-2 gap-3 my-3">
                     <div class="bg-rose-950/60 border-2 border-rose-500/80 rounded-xl p-3 text-center shadow-lg">
-                        <div class="text-xs text-rose-300 font-bold mb-1">中心角 (∠AOB)</div>
-                        <div id="val-central" class="text-2xl md:text-3xl font-extrabold text-white tracking-wider">120°</div>
+                        <div class="text-xs text-rose-300 font-bold mb-1">中心角 (<span data-tex="\angle AOB"></span>)</div>
+                        <div id="val-central" class="text-2xl md:text-3xl font-extrabold text-white tracking-wider"><span data-tex="120^{\circ}">120°</span></div>
                     </div>
                     <div class="bg-cyan-950/60 border-2 border-cyan-500/80 rounded-xl p-3 text-center shadow-lg">
-                        <div class="text-xs text-cyan-300 font-bold mb-1">円周角 (∠APB)</div>
-                        <div id="val-inscribed" class="text-2xl md:text-3xl font-extrabold text-white tracking-wider">60°</div>
+                        <div class="text-xs text-cyan-300 font-bold mb-1">円周角 (<span data-tex="\angle APB"></span>)</div>
+                        <div id="val-inscribed" class="text-2xl md:text-3xl font-extrabold text-white tracking-wider"><span data-tex="60^{\circ}">60°</span></div>
                     </div>
                 </div>
 
                 <div class="p-3 bg-slate-700/40 border border-slate-600/40 rounded-xl text-xs text-slate-300 space-y-1">
                     <p class="font-bold text-amber-300">👀 観察のヒント</p>
-                    <p>・点A, Bと中心Oは固定されています。</p>
-                    <p>・Pを同じ弧の上で動かしたとき、角度の数値はどうなっていますか？</p>
+                    <p>・点<span data-tex="A, B">A, B</span>と中心<span data-tex="O">O</span>は固定されています。</p>
+                    <p>・<span data-tex="P">P</span>を同じ弧の上で動かしたとき、角度の数値はどうなっていますか？</p>
                 </div>
 
                 <button onclick="goToStep(3)" class="w-full mt-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl btn-action shadow-lg flex items-center justify-center gap-2">
@@ -161,7 +166,7 @@
                         <span class="text-xl">🎉</span>
                         <div>
                             <h3 class="font-bold text-emerald-300 text-sm">発見1：円周角は常に一定！</h3>
-                            <p class="text-xs text-slate-200 mt-0.5">点Pを弧のどこへ動かしても、円周角の大きさ（60°）は変わりませんでした！</p>
+                            <p class="text-xs text-slate-200 mt-0.5">点<span data-tex="P">P</span>を弧のどこへ動かしても、円周角の大きさ（<span data-tex="60^{\circ}">60°</span>）は変わりませんでした！</p>
                         </div>
                     </div>
                     <hr class="border-emerald-800">
@@ -169,7 +174,7 @@
                         <span class="text-xl">💡</span>
                         <div>
                             <h3 class="font-bold text-emerald-300 text-sm">発見2：中心角のちょうど半分！</h3>
-                            <p class="text-xs text-slate-200 mt-0.5">中心角（120°）に対して、同じ弧を見込む円周角（60°）はいつでも【半分】になっています。</p>
+                            <p class="text-xs text-slate-200 mt-0.5">中心角（<span data-tex="120^{\circ}">120°</span>）に対して、同じ弧を見込む円周角（<span data-tex="60^{\circ}">60°</span>）はいつでも【半分】になっています。</p>
                         </div>
                     </div>
                 </div>
@@ -177,7 +182,7 @@
                 <div class="p-3 bg-slate-900/80 border border-slate-700 rounded-xl text-center">
                     <div class="text-xs text-slate-400 mb-1">【まとめの公式】</div>
                     <div class="text-base font-extrabold text-cyan-300">
-                        (円周角) ＝ <span class="text-rose-400">1/2</span> × (中心角)
+                        <span data-tex="\text{円周角}=\frac{1}{2}\times\text{中心角}"></span>
                     </div>
                 </div>
 
@@ -203,17 +208,17 @@
 
                 <!-- 解説1 -->
                 <div id="proof-content-1" class="text-xs text-slate-300 leading-relaxed space-y-2 p-3 bg-slate-900/50 rounded-xl border border-slate-700">
-                    <p class="font-bold text-purple-300 text-sm">① 点Pと中心Oを通る補助線を引く</p>
-                    <p>点Pから中心Oを通る直線（直径）を引きます。</p>
+                    <p class="font-bold text-purple-300 text-sm">① 点<span data-tex="P">P</span>と中心<span data-tex="O">O</span>を通る補助線を引く</p>
+                    <p>点<span data-tex="P">P</span>から中心<span data-tex="O">O</span>を通る直線（直径）を引きます。</p>
                     <p>すると、全体だった角が左右2つの部分（左側と右側）に分かれます。</p>
                 </div>
 
                 <!-- 解説2 -->
                 <div id="proof-content-2" class="text-xs text-slate-300 leading-relaxed space-y-2 p-3 bg-slate-900/50 rounded-xl border border-slate-700 hidden">
                     <p class="font-bold text-purple-300 text-sm">② 二等辺三角形を見つける</p>
-                    <p>線分 <strong class="text-amber-300">OA, OB, OP</strong> に同じ印がついている通り、これらはすべて「円の半径」なので長さが等しくなります。</p>
-                    <p>よって、左の △OAP と右の △OBP はどちらも<strong class="text-emerald-300">二等辺三角形</strong>です。</p>
-                    <p id="proof-text-2-angles">図の通り、底角をそれぞれ <strong class="text-cyan-300">a</strong> , <strong class="text-rose-300">b</strong> とおきます。（角OPA＝角OAP＝<strong class="text-cyan-300">a</strong>、角OPB＝角OBP＝<strong class="text-rose-300">b</strong>）</p>
+                    <p>線分 <strong class="text-amber-300"><span data-tex="OA, OB, OP">OA, OB, OP</span></strong> に同じ印がついている通り、これらはすべて「円の半径」なので長さが等しくなります。</p>
+                    <p>よって、左の <span data-tex="\triangle OAP">△OAP</span> と右の <span data-tex="\triangle OBP">△OBP</span> はどちらも<strong class="text-emerald-300">二等辺三角形</strong>です。</p>
+                    <p id="proof-text-2-angles">図の通り、底角をそれぞれ <strong class="text-cyan-300"><span data-tex="a">a</span></strong> , <strong class="text-rose-300"><span data-tex="b">b</span></strong> とおきます。（角<span data-tex="OPA=">OPA＝</span>角<span data-tex="OAP=">OAP＝</span><strong class="text-cyan-300"><span data-tex="a">a</span></strong>、角<span data-tex="OPB=">OPB＝</span>角<span data-tex="OBP=">OBP＝</span><strong class="text-rose-300"><span data-tex="b">b</span></strong>）</p>
                 </div>
 
                 <!-- 解説3 -->
@@ -223,7 +228,7 @@
 
                 <div class="flex justify-between items-center pt-2">
                     <button id="btn-proof-prev" onclick="changeProofSubStep(-1)" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-xs rounded-lg font-bold disabled:opacity-30">◀ 前へ</button>
-                    <span id="proof-page-num" class="text-xs text-slate-400">1 / 3</span>
+                    <span id="proof-page-num" class="text-xs text-slate-400"><span data-tex="1 / 3">1 / 3</span></span>
                     <button id="btn-proof-next" onclick="changeProofSubStep(1)" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-xs rounded-lg font-bold">次へ ▶</button>
                 </div>
             </div>
@@ -237,10 +242,10 @@
             <span class="text-sm font-bold text-slate-300">🧪 特別実験プリセット：</span>
             <div class="flex flex-wrap gap-2">
                 <button onclick="applyPreset('standard')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-xs font-medium rounded-lg border border-slate-600 text-slate-200 transition">
-                    📌 標準（中心角120°）
+                    📌 標準（中心角<span data-tex="120^{\circ}">120°</span>）
                 </button>
                 <button onclick="applyPreset('semicircle')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-xs font-medium rounded-lg border border-slate-600 text-slate-200 transition">
-                    📐 半円（中心角180° ➔ 90°）
+                    📐 半円（中心角<span data-tex="180^{\circ}">180°</span> ➔ <span data-tex="90^{\circ}">90°</span>）
                 </button>
                 <button onclick="applyPreset('right_triangle')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-xs font-medium rounded-lg border border-slate-600 text-slate-200 transition">
                     📐 APが直径と重なる時

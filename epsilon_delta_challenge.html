@@ -109,34 +109,39 @@
   summary{cursor:pointer;font-weight:700}
   code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 </style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="assets/math-typeset.css">
+<script src="assets/math-typeset.js"></script>
 </head>
 <body>
 <header>
-  <h1>ε–δ Challenge</h1>
+  <h1><span data-tex="\varepsilon -\delta ">ε–δ</span> Challenge</h1>
   <div class="subtitle">
-    コンピュータが <b>ε</b> を指定します．あなたは <b>δ</b> を選んでください．
-    その後，コンピュータが <b>0 &lt; |x-a| &lt; δ</b> の範囲から反例を探します．
+    コンピュータが <b><span data-tex="\varepsilon ">ε</span></b> を指定します．あなたは <b><span data-tex="\delta ">δ</span></b> を選んでください．
+    その後，コンピュータが <b><span data-tex="0 &lt; |x-a| &lt; \delta ">0 &lt; |x-a| &lt; δ</span></b> の範囲から反例を探します．
   </div>
 </header>
 
 <main>
   <section class="card">
     <div class="statusbar">
-      <span class="pill" id="roundPill">Round 1 / 5</span>
-      <span class="pill" id="functionPill">f(x)=x², a=1</span>
+      <span class="pill" id="roundPill">Round <span data-tex="1 / 5">1 / 5</span></span>
+      <span class="pill" id="functionPill"><span data-tex="f(x)=x^{2}, a=1">f(x)=x², a=1</span></span>
       <span class="pill" id="modePill">対戦中</span>
     </div>
     <div class="graph-tools">
-      <div class="row"><button id="zoomIn" class="secondary" aria-label="グラフを拡大">＋ 拡大</button><button id="zoomOut" class="secondary" aria-label="グラフを縮小">− 縮小</button><button id="zoomFit" class="ghost">ε・δ に合わせる</button><button id="zoomReset" class="ghost">全体表示</button></div>
-      <div class="small">(a, f(a)) を中心に拡大・縮小します．グラフ上のホイールでも操作できます．</div>
+      <div class="row"><button id="zoomIn" class="secondary" aria-label="グラフを拡大">＋ 拡大</button><button id="zoomOut" class="secondary" aria-label="グラフを縮小">− 縮小</button><button id="zoomFit" class="ghost"><span data-tex="\varepsilon ">ε</span>・<span data-tex="\delta ">δ</span> に合わせる</button><button id="zoomReset" class="ghost">全体表示</button></div>
+      <div class="small"><span data-tex="(a, f(a))">(a, f(a))</span> を中心に拡大・縮小します．グラフ上のホイールでも操作できます．</div>
     </div>
     <canvas id="graph" width="800" height="520" role="img" aria-label="関数とεの横帯、δの縦帯を示すグラフ"></canvas>
     <div class="pad">
       <div class="legend">
         <span><span class="dot" style="background:#3b5ccc"></span>関数</span>
-        <span><span class="dot" style="background:#e3a008"></span>δ の範囲</span>
-        <span><span class="dot" style="background:#d94f4f"></span>ε の帯</span>
-        <span><span class="dot" style="background:#111"></span>コンピュータが選んだ x</span>
+        <span><span class="dot" style="background:#e3a008"></span><span data-tex="\delta ">δ</span> の範囲</span>
+        <span><span class="dot" style="background:#d94f4f"></span><span data-tex="\varepsilon ">ε</span> の帯</span>
+        <span><span class="dot" style="background:#111"></span>コンピュータが選んだ <span data-tex="x">x</span></span>
       </div>
     </div>
   </section>
@@ -146,33 +151,33 @@
       <div class="section-title">今回の課題</div>
       <label for="problemSelect" class="small">問題を選ぶ（切り替えると新しい挑戦が始まります）</label>
       <select id="problemSelect"></select>
-      <div class="equation" id="eqBox">f(x)=x², a=1</div>
+      <div class="equation" id="eqBox"><span data-tex="f(x)=x^{2}, a=1">f(x)=x², a=1</span></div>
 
       <div style="margin-top:16px">
-        <div class="small">コンピュータが指定した ε</div>
-        <div class="epsilon" id="epsilonValue">ε = 0.20</div>
+        <div class="small">コンピュータが指定した <span data-tex="\varepsilon ">ε</span></div>
+        <div class="epsilon" id="epsilonValue"><span data-tex="\varepsilon  = 0.20">ε = 0.20</span></div>
       </div>
 
       <div style="margin-top:18px">
         <div class="row" style="justify-content:space-between">
-          <label for="deltaRange"><b>あなたの δ</b></label>
+          <label for="deltaRange"><b>あなたの <span data-tex="\delta ">δ</span></b></label>
           <input id="deltaNumber" aria-label="δの数値" type="number" min="0.001" max="2" step="0.001" value="0.1">
         </div>
         <input id="deltaRange" type="range" min="0.001" max="2" step="0.001" value="0.1">
       </div>
 
       <div class="row" style="margin-top:14px">
-        <button id="challengeBtn" class="primary">この δ で勝負する</button>
+        <button id="challengeBtn" class="primary">この <span data-tex="\delta ">δ</span> で勝負する</button>
         <button id="hintBtn" class="secondary">ヒント</button>
       </div>
 
       <div id="message" class="message" aria-live="polite">
-        δ を選んで「この δ で勝負する」を押してください．
+        <span data-tex="\delta ">δ</span> を選んで「この <span data-tex="\delta ">δ</span> で勝負する」を押してください．
       </div>
 
       <div class="rule">
-        勝利条件：すべての x について，
-        <br><b>0 &lt; |x-a| &lt; δ ⇒ |f(x)-f(a)| &lt; ε</b>
+        勝利条件：すべての <span data-tex="x">x</span> について，
+        <br><b><span data-tex="0 &lt; |x-a| &lt; \delta  \implies  |f(x)-f(a)| &lt; \varepsilon ">0 &lt; |x-a| &lt; δ ⇒ |f(x)-f(a)| &lt; ε</span></b>
         <br>が成り立つこと．
       </div>
 
@@ -190,9 +195,9 @@
       <details>
         <summary>この教材の狙い</summary>
         <div class="small" style="margin-top:8px">
-          ε–δ 定義を「量化記号の順序」として体験するためのミニゲームです．
-          コンピュータが ε を先に選び，学生が δ を選び，最後にコンピュータが x を選びます．
-          不連続な関数では，どれだけ δ を小さくしても勝てない場合があります．
+          <span data-tex="\varepsilon -\delta ">ε–δ</span> 定義を「量化記号の順序」として体験するためのミニゲームです．
+          コンピュータが <span data-tex="\varepsilon ">ε</span> を先に選び，学生が <span data-tex="\delta ">δ</span> を選び，最後にコンピュータが <span data-tex="x">x</span> を選びます．
+          不連続な関数では，どれだけ <span data-tex="\delta ">δ</span> を小さくしても勝てない場合があります．
         </div>
       </details>
     </div>
