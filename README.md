@@ -18,6 +18,8 @@
 
 ### 確率・統計
 
+- [Fisher情報量とクラメール–ラオの不等式をさわる](https://kenshi-miyabe.github.io/math_interactive/fisher_information.html) — 推定量を工夫して分散を小さくし，確率分布族ごとのFisher情報量を観察しながら，推定精度の限界を理解します．
+
 - [中心極限定理をさわる](https://kenshi-miyabe.github.io/math_interactive/central_limit_theorem.html) — 標本数を増やし、標準化した標本平均の密度ヒストグラムが標準正規分布に近づく様子を観察します。
 
 - [大数の法則をさわる](https://kenshi-miyabe.github.io/math_interactive/law_of_large_numbers.html) — 分布とパラメータを選び、複数の標本平均が期待値へ近づく様子を観察します。
