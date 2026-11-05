@@ -14,48 +14,48 @@
 <script src="assets/math-typeset.js"></script>
 </head>
 <body>
-<header><div class="brand">さわる数学 / 積分</div><h1>リーマン積分をつくる</h1><p class="muted">長方形の高さを変えても、同じ値に近づく？ 分割・代表点・誤差を動かして、定義を確かめよう。</p></header>
+<header><div class="brand">さわる数学 / 積分</div><h1>リーマン積分をつくる</h1><p class="muted">長方形の高さを変えても，同じ値に近づく？ 分割・代表点・誤差を動かして，定義を確かめよう．</p></header>
 <main>
 <div class="layout">
 <section class="card" aria-label="グラフと計算結果">
 <div class="pad">
 <div class="row spread"><h2 id="functionTitle"></h2><span class="pill">積分区間 [0, 1]</span></div>
 <p id="functionNote" class="small"></p>
-<div id="symbolicNote" class="symbolic" hidden>これは模式図です。有理数の点も無理数の点も、どんな小区間にも存在します。有限個の画素では実際のグラフを描けないので、<span data-tex="y=0">y=0</span> と <span data-tex="y=1">y=1</span> の両方に点があることを破線で表します。有理数・無理数の区別は数値の丸めで判定せず、数学的な性質を使っています。</div>
+<div id="symbolicNote" class="symbolic" hidden>これは模式図です．有理数の点も無理数の点も，どんな小区間にも存在します．有限個の画素では実際のグラフを描けないので，<span data-tex="y=0">y=0</span> と <span data-tex="y=1">y=1</span> の両方に点があることを破線で表します．有理数・無理数の区別は数値の丸めで判定せず，数学的な性質を使っています．</div>
 </div>
-<canvas id="graph" role="img" aria-label="関数、分割、下和・上和と代表点の長方形"></canvas>
+<canvas id="graph" role="img" aria-label="関数，分割，下和・上和と代表点の長方形"></canvas>
 <div class="pad">
 <div class="legend"><span><i class="swatch" style="background:#167667"></i>下和の長方形</span><span><i class="swatch" style="background:#edc17b"></i>上和と下和の差</span><span><i class="swatch" style="background:#315ac5"></i>代表点の長方形（青枠）</span></div>
 <div class="stats" aria-live="polite"><div class="stat lower">下和 <span data-tex="L(P)">L(P)</span><strong id="lowerValue"></strong></div><div class="stat sample">リーマン和 <span data-tex="S(P, \xi )">S(P, ξ)</span><strong id="sumValue"></strong></div><div class="stat upper">上和 <span data-tex="U(P)">U(P)</span><strong id="upperValue"></strong></div></div>
 <div class="equation" data-display data-tex="L(P)\le S(P,\xi)\le U(P)"></div>
-<p class="small">各区間で「最小の高さ <span data-tex="\le ">≤</span> 代表点の高さ <span data-tex="\le ">≤</span> 最大の高さ」。幅を掛けて足しても、この大小関係は保たれます。<span data-tex="x">x</span>軸より下の長方形は負の寄与です。</p>
+<p class="small">各区間で「最小の高さ <span data-tex="\le ">≤</span> 代表点の高さ <span data-tex="\le ">≤</span> 最大の高さ」．幅を掛けて足しても，この大小関係は保たれます．<span data-tex="x">x</span>軸より下の長方形は負の寄与です．</p>
 <div class="interval"><label for="intervalRange">1つの小区間を調べる：<span id="intervalLabel"></span></label><input id="intervalRange" type="range" min="1" max="4" value="1" step="1"><div id="intervalDetail" class="small"></div></div>
 </div></section>
 <aside class="card pad"><h2>動かして確かめる</h2><div class="controls">
-<div><label for="functionSelect">1. 関数を選ぶ</label><select id="functionSelect"><option value="square">x² — 連続な関数</option><option value="sine">sin(πx) — 山形の関数</option><option value="signed">x − 1/2 — 正と負の寄与</option><option value="step">段差関数 — 不連続でも積分できる？</option><option value="spike">1点だけ高さ1 — 積分値はどうなる？</option><option value="dirichlet">有理数なら1、無理数なら0 — 積分できない例</option></select></div>
+<div><label for="functionSelect">1. 関数を選ぶ</label><select id="functionSelect"><option value="square">x² — 連続な関数</option><option value="sine">sin(πx) — 山形の関数</option><option value="signed">x − 1/2 — 正と負の寄与</option><option value="step">段差関数 — 不連続でも積分できる？</option><option value="spike">1点だけ高さ1 — 積分値はどうなる？</option><option value="dirichlet">有理数なら1，無理数なら0 — 積分できない例</option></select></div>
 <div><label for="partitionSelect">2. 分割のしかた</label><select id="partitionSelect"><option value="uniform">等分割：xᵢ = i/n</option><option value="graded">不等分割：xᵢ = (i/n)²</option></select></div>
-<div><label for="countRange">小区間の数 <span data-tex="n =">n =</span> <span id="countValue">4</span></label><input id="countRange" type="range" min="1" max="512" step="1" value="4"><div class="row"><button id="halveBtn">半分にする</button><button id="doubleBtn">2倍に細分する</button></div><p class="small">分割の幅 <span data-tex="\lVert P\rVert  = \max  \Delta x_{i} =">‖P‖ = max Δxᵢ =</span> <b id="meshValue"></b><br>定義で小さくするのは「最も広い小区間の幅」です。表示は最大512区間です。</p></div>
+<div><label for="countRange">小区間の数 <span data-tex="n =">n =</span> <span id="countValue">4</span></label><input id="countRange" type="range" min="1" max="512" step="1" value="4"><div class="row"><button id="halveBtn">半分にする</button><button id="doubleBtn">2倍に細分する</button></div><p class="small">分割の幅 <span data-tex="\lVert P\rVert  = \max  \Delta x_{i} =">‖P‖ = max Δxᵢ =</span> <b id="meshValue"></b><br>定義で小さくするのは「最も広い小区間の幅」です．表示は最大512区間です．</p></div>
 <div id="ordinaryTags"><label for="tagSelect">3. 代表点 <span data-tex="\xi _{i}">ξᵢ</span> の選び方</label><select id="tagSelect"><option value="left">左端</option><option value="middle" selected>中央</option><option value="right">右端</option><option value="random">各区間でランダム</option></select><button id="resampleBtn" style="margin-top:8px" hidden>代表点を選び直す</button></div>
 <div id="symbolicTags" hidden><label for="rationalSelect">3. 代表点の種類（模式的に選択）</label><select id="rationalSelect"><option value="rational">全区間で有理数を選ぶ → 高さ1</option><option value="irrational">全区間で無理数を選ぶ → 高さ0</option><option value="alternating">有理数と無理数を交互に選ぶ</option></select></div>
 <div><label for="epsilonSelect">4. 許したい誤差 <span data-tex="\varepsilon ">ε</span></label><select id="epsilonSelect"><option value="0.2">0.2</option><option value="0.1" selected>0.1</option><option value="0.05">0.05</option><option value="0.01">0.01</option></select></div>
-</div><div id="result" class="result" aria-live="polite"></div><details><summary>この関数で、どこまで言える？</summary><div id="proof" class="small"></div></details><button id="resetBtn" style="margin-top:16px">この関数で最初から</button></aside>
+</div><div id="result" class="result" aria-live="polite"></div><details><summary>この関数で，どこまで言える？</summary><div id="proof" class="small"></div></details><button id="resetBtn" style="margin-top:16px">この関数で最初から</button></aside>
 </div>
-<section class="card pad definition"><h2>操作と、定義をつなぐ</h2><div class="steps"><div><h3>① 分割を決める</h3><p><span data-tex="0=x_{0}&lt;x_{1}&lt;\cdots &lt;x_{n}=1">0=x₀&lt;x₁&lt;…&lt;xₙ=1</span> と分け、幅を <span data-tex="\Delta x_{i}=x_{i}-x_{i-1}">Δxᵢ=xᵢ−xᵢ₋₁</span> とします。分割 <span data-tex="P">P</span> は、境目の点を集めたものです。</p></div><div><h3>② 代表点を選ぶ</h3><p>各小区間 <span data-tex="[x_{i-1},x_{i}]">[xᵢ₋₁,xᵢ]</span> の中から <span data-tex="\xi _{i}">ξᵢ</span> を選びます。高さ <span data-tex="f(\xi _{i})">f(ξᵢ)</span>、幅 <span data-tex="\Delta x_{i}">Δxᵢ</span> の符号付き面積を足したものがリーマン和です。</p><div class="equation" data-display data-tex="S(P,\xi)=\sum_{i=1}^{n}f(\xi_i)\,\Delta x_i"></div></div><div><h3>③ 選び方によらない極限へ</h3><p>分割の幅を十分小さくすると、<b>どんな分割でも、どんな代表点でも</b>和が同じ値 <span data-tex="I">I</span> に近づく。この <span data-tex="I">I</span> をリーマン積分と呼びます。</p></div></div>
-<details open><summary>リーマン積分の定義（有界関数 <span data-tex="f : [0,1] \to  \mathbb{R}">f : [0,1] → ℝ</span>）</summary><p>ある実数 <span data-tex="I">I</span> が存在し、任意の <span data-tex="\varepsilon &gt;0">ε&gt;0</span> に対して、ある <span data-tex="\delta &gt;0">δ&gt;0</span> を選ぶことができて、<b><span data-tex="\lVert P\rVert &lt;\delta ">‖P‖&lt;δ</span> を満たすすべての分割 <span data-tex="P">P</span> と、すべての代表点の選び方 <span data-tex="\xi ">ξ</span></b>について、次が成り立つとき、<span data-tex="f">f</span> はリーマン積分可能です。</p><div class="equation" data-display data-tex="\lvert S(P,\xi)-I\rvert&lt;\varepsilon"></div><p class="small"><span data-tex="\varepsilon  \to  \delta  \to ">ε → δ →</span> 任意の <span data-tex="P">P</span> と <span data-tex="\xi ">ξ</span>、という順序が大切です。<span data-tex="\delta ">δ</span> は <span data-tex="\varepsilon ">ε</span> に応じて決めますが、後から選ばれる分割や代表点には依存させません。ここでの <span data-tex="\delta ">δ</span> は分割の幅に対する条件です。</p></details>
-<details><summary>上和・下和で確かめる方法（ダルブーの判定条件）</summary><p>各小区間で <span data-tex="m_{i}=\inf  f">mᵢ=inf f</span>、<span data-tex="M_{i}=\sup  f">Mᵢ=sup f</span> とし、<span data-tex="L(P)=\sum m_{i}\Delta x_{i}">L(P)=ΣmᵢΔxᵢ</span>、<span data-tex="U(P)=\Sigma M_{i}\Delta x_{i}">U(P)=ΣMᵢΔxᵢ</span> と定めます。<span data-tex="\inf ">inf</span>・<span data-tex="\sup ">sup</span> は下限・上限のことで、実際にその高さを取るとは限りません。</p><p>有界関数がリーマン積分可能であることは、<b>どんな <span data-tex="\varepsilon &gt;0">ε&gt;0</span> に対しても <span data-tex="U(P)-L(P)&lt;\varepsilon ">U(P)−L(P)&lt;ε</span> となる分割 <span data-tex="P">P</span> が存在する</b>ことと同値です。積分可能なら <span data-tex="L(P)\le I\le U(P)">L(P)≤I≤U(P)</span> です。</p><p>既存の分割点を残したまま細分すると、下和は減らず、上和は増えません。「2倍に細分する」はこの操作です。スライダーで分割数を自由に変えた場合は、以前の分割点が残るとは限りません。</p></details>
-<div class="note" style="margin-top:16px"><b>試してみよう：</b>まず <span data-tex="x^{2}">x²</span> で代表点を左端・右端に切り替え、分割を細かくして比べましょう。次に「1点だけ高さ1」と「有理数なら1」を比較してください。不連続な点があることだけでは、積分できるかどうかは決まりません。</div>
+<section class="card pad definition"><h2>操作と，定義をつなぐ</h2><div class="steps"><div><h3>① 分割を決める</h3><p><span data-tex="0=x_{0}&lt;x_{1}&lt;\cdots &lt;x_{n}=1">0=x₀&lt;x₁&lt;…&lt;xₙ=1</span> と分け，幅を <span data-tex="\Delta x_{i}=x_{i}-x_{i-1}">Δxᵢ=xᵢ−xᵢ₋₁</span> とします．分割 <span data-tex="P">P</span> は，境目の点を集めたものです．</p></div><div><h3>② 代表点を選ぶ</h3><p>各小区間 <span data-tex="[x_{i-1},x_{i}]">[xᵢ₋₁,xᵢ]</span> の中から <span data-tex="\xi _{i}">ξᵢ</span> を選びます．高さ <span data-tex="f(\xi _{i})">f(ξᵢ)</span>，幅 <span data-tex="\Delta x_{i}">Δxᵢ</span> の符号付き面積を足したものがリーマン和です．</p><div class="equation" data-display data-tex="S(P,\xi)=\sum_{i=1}^{n}f(\xi_i)\,\Delta x_i"></div></div><div><h3>③ 選び方によらない極限へ</h3><p>分割の幅を十分小さくすると，<b>どんな分割でも，どんな代表点でも</b>和が同じ値 <span data-tex="I">I</span> に近づく．この <span data-tex="I">I</span> をリーマン積分と呼びます．</p></div></div>
+<details open><summary>リーマン積分の定義（有界関数 <span data-tex="f : [0,1] \to  \mathbb{R}">f : [0,1] → ℝ</span>）</summary><p>ある実数 <span data-tex="I">I</span> が存在し，任意の <span data-tex="\varepsilon &gt;0">ε&gt;0</span> に対して，ある <span data-tex="\delta &gt;0">δ&gt;0</span> を選ぶことができて，<b><span data-tex="\lVert P\rVert &lt;\delta ">‖P‖&lt;δ</span> を満たすすべての分割 <span data-tex="P">P</span> と，すべての代表点の選び方 <span data-tex="\xi ">ξ</span></b>について，次が成り立つとき，<span data-tex="f">f</span> はリーマン積分可能です．</p><div class="equation" data-display data-tex="\lvert S(P,\xi)-I\rvert&lt;\varepsilon"></div><p class="small"><span data-tex="\varepsilon  \to  \delta  \to ">ε → δ →</span> 任意の <span data-tex="P">P</span> と <span data-tex="\xi ">ξ</span>，という順序が大切です．<span data-tex="\delta ">δ</span> は <span data-tex="\varepsilon ">ε</span> に応じて決めますが，後から選ばれる分割や代表点には依存させません．ここでの <span data-tex="\delta ">δ</span> は分割の幅に対する条件です．</p></details>
+<details><summary>上和・下和で確かめる方法（ダルブーの判定条件）</summary><p>各小区間で <span data-tex="m_{i}=\inf  f">mᵢ=inf f</span>，<span data-tex="M_{i}=\sup  f">Mᵢ=sup f</span> とし，<span data-tex="L(P)=\sum m_{i}\Delta x_{i}">L(P)=ΣmᵢΔxᵢ</span>，<span data-tex="U(P)=\Sigma M_{i}\Delta x_{i}">U(P)=ΣMᵢΔxᵢ</span> と定めます．<span data-tex="\inf ">inf</span>・<span data-tex="\sup ">sup</span> は下限・上限のことで，実際にその高さを取るとは限りません．</p><p>有界関数がリーマン積分可能であることは，<b>どんな <span data-tex="\varepsilon &gt;0">ε&gt;0</span> に対しても <span data-tex="U(P)-L(P)&lt;\varepsilon ">U(P)−L(P)&lt;ε</span> となる分割 <span data-tex="P">P</span> が存在する</b>ことと同値です．積分可能なら <span data-tex="L(P)\le I\le U(P)">L(P)≤I≤U(P)</span> です．</p><p>既存の分割点を残したまま細分すると，下和は減らず，上和は増えません．「2倍に細分する」はこの操作です．スライダーで分割数を自由に変えた場合は，以前の分割点が残るとは限りません．</p></details>
+<div class="note" style="margin-top:16px"><b>試してみよう：</b>まず <span data-tex="x^{2}">x²</span> で代表点を左端・右端に切り替え，分割を細かくして比べましょう．次に「1点だけ高さ1」と「有理数なら1」を比較してください．不連続な点があることだけでは，積分できるかどうかは決まりません．</div>
 </section>
 </main><footer>さわる数学 · <a href="epsilon_delta_challenge.html"><span data-tex="\varepsilon -\delta ">ε–δ</span>チャレンジへ</a></footer>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
 const examples={
- square:{title:'f(x) = x²',note:'同じ分割でも、長方形の高さの選び方で和は変わります。',fx:x=>x*x,bounds:(a,b)=>[a*a,b*b],integral:1/3,c:2,proof:'[0,1] では |x²−y²|≤2|x−y| です。各区間の高さの差は 2Δxᵢ 以下なので、U−L≤2Σ(Δxᵢ)²≤2‖P‖。任意の ε>0 に対して δ=ε/2 とすれば、‖P‖<δ のすべての分割で U−L<ε です。'},
- sine:{title:'f(x) = sin(πx)',note:'区間の途中に頂点がある場合、端点の値だけでは上和を計算できません。',fx:x=>Math.sin(Math.PI*x),bounds:(a,b)=>[Math.min(Math.sin(Math.PI*a),Math.sin(Math.PI*b)),a<=.5&&b>=.5?1:Math.max(Math.sin(Math.PI*a),Math.sin(Math.PI*b))],integral:2/Math.PI,c:Math.PI,proof:'|sin(πx)−sin(πy)|≤π|x−y| より、U−L≤π‖P‖。δ=ε/π とすれば、どんな分割でも ‖P‖<δ なら U−L<ε です。'},
- signed:{title:'f(x) = x − 1/2',note:'x軸より下では f(ξᵢ)Δxᵢ は負になります。積分は面積の絶対値の合計ではありません。',fx:x=>x-.5,bounds:(a,b)=>[a-.5,b-.5],integral:0,c:1,proof:'各区間の高さの差は Δxᵢ なので、U−L=Σ(Δxᵢ)²≤‖P‖。δ=ε とすれば十分です。正と負の寄与が打ち消し合い、積分値は 0 になります。'},
- step:{title:'f(x) = 0 (x<1/2), 1 (x≥1/2)',note:'不連続なのは x=1/2。段差を含む区間を狭めると、上和と下和の差も小さくなります。',fx:x=>x<.5?0:1,bounds:(a,b)=>[a<.5?0:1,b<.5?0:1],integral:.5,c:2,proof:'上下の高さが異なるのは、x=1/2 を含む小区間だけです。そのような区間は高々2つで、高さの差は高々1。したがって U−L≤2‖P‖ で、δ=ε/2 とすれば十分です。不連続な点が1つあっても、積分可能です。'},
- spike:{title:'f(x) = 1 (x=1/2), 0 (x≠1/2)',note:'小区間は両端を含みます。x=1/2 が分割点なら、隣り合う2つの区間の上限が1になります。',fx:x=>x===.5?1:0,bounds:(a,b)=>[0,a<=.5&&b>=.5?1:0],integral:0,c:2,proof:'下和は常に 0。上限が1になる区間は高々2つなので、0≤U≤2‖P‖。δ=ε/2 とすれば任意の代表点について 0≤S<ε となり、積分値は 0 です。1点だけの関数値は積分値を変えません。'},
- dirichlet:{title:'f(x) = 1 (x∈ℚ), 0 (x∉ℚ)',note:'有理数と無理数は、どんな短い区間にも両方あります。',bounds:()=>[0,1],symbolic:true,proof:'すべての小区間で下限0、上限1なので、分割によらず L=0、U=1 です。さらに全区間で有理数を選ぶと S=1、無理数を選ぶと S=0。同じ I から両方の誤差を ε=1/4 未満にすることはできません。どれほど分割の幅を小さくしても、定義を満たす I は存在しません。'}
+ square:{title:'f(x) = x²',note:'同じ分割でも，長方形の高さの選び方で和は変わります．',fx:x=>x*x,bounds:(a,b)=>[a*a,b*b],integral:1/3,c:2,proof:'[0,1] では |x²−y²|≤2|x−y| です．各区間の高さの差は 2Δxᵢ 以下なので，U−L≤2Σ(Δxᵢ)²≤2‖P‖．任意の ε>0 に対して δ=ε/2 とすれば，‖P‖<δ のすべての分割で U−L<ε です．'},
+ sine:{title:'f(x) = sin(πx)',note:'区間の途中に頂点がある場合，端点の値だけでは上和を計算できません．',fx:x=>Math.sin(Math.PI*x),bounds:(a,b)=>[Math.min(Math.sin(Math.PI*a),Math.sin(Math.PI*b)),a<=.5&&b>=.5?1:Math.max(Math.sin(Math.PI*a),Math.sin(Math.PI*b))],integral:2/Math.PI,c:Math.PI,proof:'|sin(πx)−sin(πy)|≤π|x−y| より，U−L≤π‖P‖．δ=ε/π とすれば，どんな分割でも ‖P‖<δ なら U−L<ε です．'},
+ signed:{title:'f(x) = x − 1/2',note:'x軸より下では f(ξᵢ)Δxᵢ は負になります．積分は面積の絶対値の合計ではありません．',fx:x=>x-.5,bounds:(a,b)=>[a-.5,b-.5],integral:0,c:1,proof:'各区間の高さの差は Δxᵢ なので，U−L=Σ(Δxᵢ)²≤‖P‖．δ=ε とすれば十分です．正と負の寄与が打ち消し合い，積分値は 0 になります．'},
+ step:{title:'f(x) = 0 (x<1/2), 1 (x≥1/2)',note:'不連続なのは x=1/2．段差を含む区間を狭めると，上和と下和の差も小さくなります．',fx:x=>x<.5?0:1,bounds:(a,b)=>[a<.5?0:1,b<.5?0:1],integral:.5,c:2,proof:'上下の高さが異なるのは，x=1/2 を含む小区間だけです．そのような区間は高々2つで，高さの差は高々1．したがって U−L≤2‖P‖ で，δ=ε/2 とすれば十分です．不連続な点が1つあっても，積分可能です．'},
+ spike:{title:'f(x) = 1 (x=1/2), 0 (x≠1/2)',note:'小区間は両端を含みます．x=1/2 が分割点なら，隣り合う2つの区間の上限が1になります．',fx:x=>x===.5?1:0,bounds:(a,b)=>[0,a<=.5&&b>=.5?1:0],integral:0,c:2,proof:'下和は常に 0．上限が1になる区間は高々2つなので，0≤U≤2‖P‖．δ=ε/2 とすれば任意の代表点について 0≤S<ε となり，積分値は 0 です．1点だけの関数値は積分値を変えません．'},
+ dirichlet:{title:'f(x) = 1 (x∈ℚ), 0 (x∉ℚ)',note:'有理数と無理数は，どんな短い区間にも両方あります．',bounds:()=>[0,1],symbolic:true,proof:'すべての小区間で下限0，上限1なので，分割によらず L=0，U=1 です．さらに全区間で有理数を選ぶと S=1，無理数を選ぶと S=0．同じ I から両方の誤差を ε=1/4 未満にすることはできません．どれほど分割の幅を小さくしても，定義を満たす I は存在しません．'}
 };
 let n=4, selectedInterval=0, randomTags=[], data=null;
 const canvas=$('graph'),ctx=canvas.getContext('2d');
@@ -89,19 +89,19 @@ function update(){
  const pass=data.gap<eps-1e-12;
  $('result').className='result'+(pass?' good':'');
  $('result').innerHTML=`<h3>上和 − 下和 = ${fmt(data.gap)}</h3>`+(e.symbolic?
- `<p><b>細かくしても、この差は 1 のまま。</b>ε=${eps} より小さくできません。代表点を有理数にするか無理数にするかで、和が 1 と 0 に分かれるため、積分できません。</p>`:
- pass?`<p><b>この分割では、差が ε=${eps} より小さくなりました。</b></p><p>どの代表点を選んでも S は [${fmt(data.lower)}, ${fmt(data.upper)}] の中です。積分値 I もこの間にあるので、<b>|S−I|≤U−L&lt;ε</b>。特定の代表点でたまたま近いのではなく、どの選び方でも誤差を抑えられます。</p>`:
- `<p>まだ U−L&lt;ε=${eps} にはなっていません。分割を細かくして、代表点を変えたときの和の違いを比べましょう。</p><p>今のリーマン和が積分値に近くても、それだけで「すべての代表点」での近さは保証できません。</p>`);
+ `<p><b>細かくしても，この差は 1 のまま．</b>ε=${eps} より小さくできません．代表点を有理数にするか無理数にするかで，和が 1 と 0 に分かれるため，積分できません．</p>`:
+ pass?`<p><b>この分割では，差が ε=${eps} より小さくなりました．</b></p><p>どの代表点を選んでも S は [${fmt(data.lower)}, ${fmt(data.upper)}] の中です．積分値 I もこの間にあるので，<b>|S−I|≤U−L&lt;ε</b>．特定の代表点でたまたま近いのではなく，どの選び方でも誤差を抑えられます．</p>`:
+ `<p>まだ U−L&lt;ε=${eps} にはなっていません．分割を細かくして，代表点を変えたときの和の違いを比べましょう．</p><p>今のリーマン和が積分値に近くても，それだけで「すべての代表点」での近さは保証できません．</p>`);
  if(!e.symbolic){
-  $('result').innerHTML+=`<p class="small">参考：積分値 I=${fmt(e.integral)}、今の代表点での |S−I|=${fmt(Math.abs(data.sum-e.integral))}。</p><p class="small">1つの ε での確認だけでは積分可能性の証明は完了しません。どんな ε&gt;0 に対しても可能である理由は、下の解説で確認できます。</p>`;
+  $('result').innerHTML+=`<p class="small">参考：積分値 I=${fmt(e.integral)}，今の代表点での |S−I|=${fmt(Math.abs(data.sum-e.integral))}．</p><p class="small">1つの ε での確認だけでは積分可能性の証明は完了しません．どんな ε&gt;0 に対しても可能である理由は，下の解説で確認できます．</p>`;
  }
- $('proof').textContent=e.proof+(e.symbolic?'':` 今回なら ‖P‖<${fmt(eps/e.c)} とすれば十分です（必要条件ではありません）。`);
+ $('proof').textContent=e.proof+(e.symbolic?'':` 今回なら ‖P‖<${fmt(eps/e.c)} とすれば十分です（必要条件ではありません）．`);
  updateInterval();draw();
 }
 function updateInterval(){
  const c=data.cells[selectedInterval],e=examples[$('functionSelect').value];
  $('intervalLabel').textContent=`${selectedInterval+1} / ${n}`;
- $('intervalDetail').innerHTML=`[${fmt(c.a)}, ${fmt(c.b)}]、幅 Δx=${fmt(c.width)}<br>下限 m=${fmt(c.lo)}、上限 M=${fmt(c.hi)}<br>`+(e.symbolic?`代表点は${c.y===1?'有理数':'無理数'}（横位置は模式表示）、f(ξ)=${c.y}`:`代表点 ξ=${fmt(c.x)}、f(ξ)=${fmt(c.y)}`)+`<br>この長方形の寄与：f(ξ)Δx=${fmt(c.y*c.width)}`;
+ $('intervalDetail').innerHTML=`[${fmt(c.a)}, ${fmt(c.b)}]，幅 Δx=${fmt(c.width)}<br>下限 m=${fmt(c.lo)}，上限 M=${fmt(c.hi)}<br>`+(e.symbolic?`代表点は${c.y===1?'有理数':'無理数'}（横位置は模式表示），f(ξ)=${c.y}`:`代表点 ξ=${fmt(c.x)}，f(ξ)=${fmt(c.y)}`)+`<br>この長方形の寄与：f(ξ)Δx=${fmt(c.y*c.width)}`;
 }
 function draw(){
  if(!data)return;

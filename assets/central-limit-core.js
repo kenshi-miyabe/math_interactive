@@ -11,16 +11,16 @@
     return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   }
   function model(kind, a, b) {
-    if (!Number.isFinite(a) || (['normal', 'uniform'].includes(kind) && !Number.isFinite(b))) throw Error('パラメータに有限の数を入力してください。');
-    if (kind === 'bernoulli') { if (!(a > 0 && a < 1)) throw Error('成功確率は 0 より大きく 1 より小さくしてください。'); return {mean:a, variance:a*(1-a), discrete:true, draw:r=>r()<a?1:0}; }
-    if (kind === 'normal') { if (!(b > 0)) throw Error('標準偏差は正にしてください。'); return {mean:a, variance:b*b, draw:r=>a+b*Math.sqrt(-2*Math.log(1-r()))*Math.cos(2*Math.PI*r())}; }
-    if (kind === 'exponential') { if (!(a > 0)) throw Error('率は正にしてください。'); return {mean:1/a, variance:1/(a*a), draw:r=>-Math.log(1-r())/a}; }
-    if (kind === 'uniform') { if (!(b > a)) throw Error('上端は下端より大きくしてください。'); const variance=(b-a)**2/12;if(!(variance>0&&Number.isFinite(variance)))throw Error('区間の幅が小さすぎるため、標準化できません。');return {mean:(a+b)/2, variance, draw:r=>a+(b-a)*r()}; }
-    if (kind === 'poisson') { if (!(a > 0 && a <= 20)) throw Error('率は 0 より大きく 20 以下にしてください。'); return {mean:a, variance:a, discrete:true, draw:r=>{let p=1,k=0;const limit=Math.exp(-a);do{k++;p*=r();}while(p>limit);return k-1;}}; }
-    throw Error('未知の分布です。');
+    if (!Number.isFinite(a) || (['normal', 'uniform'].includes(kind) && !Number.isFinite(b))) throw Error('パラメータに有限の数を入力してください．');
+    if (kind === 'bernoulli') { if (!(a > 0 && a < 1)) throw Error('成功確率は 0 より大きく 1 より小さくしてください．'); return {mean:a, variance:a*(1-a), discrete:true, draw:r=>r()<a?1:0}; }
+    if (kind === 'normal') { if (!(b > 0)) throw Error('標準偏差は正にしてください．'); return {mean:a, variance:b*b, draw:r=>a+b*Math.sqrt(-2*Math.log(1-r()))*Math.cos(2*Math.PI*r())}; }
+    if (kind === 'exponential') { if (!(a > 0)) throw Error('率は正にしてください．'); return {mean:1/a, variance:1/(a*a), draw:r=>-Math.log(1-r())/a}; }
+    if (kind === 'uniform') { if (!(b > a)) throw Error('上端は下端より大きくしてください．'); const variance=(b-a)**2/12;if(!(variance>0&&Number.isFinite(variance)))throw Error('区間の幅が小さすぎるため，標準化できません．');return {mean:(a+b)/2, variance, draw:r=>a+(b-a)*r()}; }
+    if (kind === 'poisson') { if (!(a > 0 && a <= 20)) throw Error('率は 0 より大きく 20 以下にしてください．'); return {mean:a, variance:a, discrete:true, draw:r=>{let p=1,k=0;const limit=Math.exp(-a);do{k++;p*=r();}while(p>limit);return k-1;}}; }
+    throw Error('未知の分布です．');
   }
   function simulate({kind, a, b, repetitions, seed}, onProgress) {
-    if (!Number.isInteger(repetitions) || repetitions < 1 || repetitions > 20000) throw Error('実験回数が範囲外です。');
+    if (!Number.isInteger(repetitions) || repetitions < 1 || repetitions > 20000) throw Error('実験回数が範囲外です．');
     const m=model(kind,a,b),sd=Math.sqrt(m.variance),samples=sizes.map(()=>new Float64Array(repetitions));
     for(let trial=0;trial<repetitions;trial++) {
       const random=rng((seed+Math.imul(trial+1,0x9e3779b9))>>>0);let sum=0,checkpoint=0;

@@ -47,7 +47,7 @@ h2{font-size:.9rem;margin:0 0 6px}
 <main>
 <h1>テイラー展開：<span id="titleFunction"><span data-tex="\sin  x">sin x</span></span></h1>
 <div id="titleFormula" class="math"><span data-tex="P_{n}(x) = \sum _{k=0}^{n} f^{(k)}(a)/k! \cdot  (x - a)^{k}">Pₙ(x) = Σₖ₌₀ⁿ f⁽ᵏ⁾(a)/k! · (x − a)ᵏ</span></div>
-<p class="sub">次数 <span data-tex="n">n</span> を増やすと、中心 <span data-tex="a">a</span> のまわりで多項式が関数に近づいていきます。</p>
+<p class="sub">次数 <span data-tex="n">n</span> を増やすと，中心 <span data-tex="a">a</span> のまわりで多項式が関数に近づいていきます．</p>
 
 <div class="panel">
   <div class="row">
@@ -78,7 +78,7 @@ h2{font-size:.9rem;margin:0 0 6px}
   <div class="leg">
     <span style="--c:var(--fg)"><span data-tex="f(x)">f(x)</span></span><span style="--c:var(--poly)"><span data-tex="P_{n}(x)">Pₙ(x)</span></span><span style="--c:var(--old)"><span data-tex="P_{0}\ldots P_{n-1}">P₀〜Pₙ₋₁</span>（薄く）</span><span style="--c:var(--accent)">収束域</span>
   </div>
-  <p class="sub" style="margin:8px 0 0">グラフ上でマウスを動かすと <span data-tex="x">x</span> を調べられます。中心の点（○）をドラッグすると <span data-tex="a">a</span> を動かせます。</p>
+  <p class="sub" style="margin:8px 0 0">グラフ上でマウスを動かすと <span data-tex="x">x</span> を調べられます．中心の点（○）をドラッグすると <span data-tex="a">a</span> を動かせます．</p>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="cols">
@@ -160,11 +160,11 @@ function draw(){
 function info(c,fv,pv){
   const o=FN[key],R=o.R(a);
   $('#info').innerHTML=`<h2>調べている点での値</h2>
-  <div>中心 a = ${a.toFixed(2)}、x = <b>${xp.toFixed(2)}</b></div>
+  <div>中心 a = ${a.toFixed(2)}，x = <b>${xp.toFixed(2)}</b></div>
   <div>f(x) = ${isFinite(fv)?fv.toFixed(5):'定義域外'}</div>
   <div data-tex="P_{${n}}(x)=${isFinite(pv)?pv.toFixed(5):'\\text{—}'}"></div>
   <div>誤差 = <b>${isFinite(fv)&&isFinite(pv)?Math.abs(fv-pv).toExponential(2):'—'}</b></div>
-  <div style="color:var(--muted)">${isFinite(R)?`収束半径 = ${R.toFixed(2)}（中心から特異点までの距離）。|x−a| がこれより大きいと、n を増やしても発散します。`:'どの x でも収束します（収束半径 ∞）。'}</div>`;
+  <div style="color:var(--muted)">${isFinite(R)?`収束半径 = ${R.toFixed(2)}（中心から特異点までの距離）．|x−a| がこれより大きいと，n を増やしても発散します．`:'どの x でも収束します（収束半径 ∞）．'}</div>`;
 }
 
 function errChart(c){
@@ -242,9 +242,9 @@ function expansion(){
   const preview=all.slice(0,7);
   math($('#seriesFormula'),`${functionTex[key]}=${sumTerms(preview)}+\\cdots`);
   math($('#polynomialFormula'),`P_{${n}}(x)=${sumTerms(all.slice(0,n+1),n)}`);
-  $('#progress').textContent=`中心 a = ${num(a)}：0次から${n}次までの項を追加済み${all[n].zero?'（今回の係数は0なので、多項式は変わりません）':''}`;
+  $('#progress').textContent=`中心 a = ${num(a)}：0次から${n}次までの項を追加済み${all[n].zero?'（今回の係数は0なので，多項式は変わりません）':''}`;
   const R=FN[key].R(a);
-  math($('#expansionNote'),isFinite(R)?String.raw`\text{上の無限級数との等号は }|x-${a<0?`(${num(a)})`:num(a)}|<${num(R)}\text{ の範囲で成立（端点は別途判定）。}`:String.raw`\text{上の無限級数は、すべての実数 }x\text{ で元の関数に収束します。}` ,false);
+  math($('#expansionNote'),isFinite(R)?String.raw`\text{上の無限級数との等号は }|x-${a<0?`(${num(a)})`:num(a)}|<${num(R)}\text{ の範囲で成立（端点は別途判定）．}`:String.raw`\text{上の無限級数は，すべての実数 }x\text{ で元の関数に収束します．}` ,false);
 }
 function sync(){$('#nv').textContent=n;$('#ns').value=n;$('#av').textContent=a.toFixed(2);$('#as').value=a;draw()}
 function setFn(k){key=k;const o=FN[k];$('#as').min=o.amin;$('#as').max=o.amax;a=Math.min(Math.max(a,o.amin),o.amax);if(k==='geo'&&Math.abs(a-1)<0.05)a=0;xp=Math.min(Math.max(xp,view()[0]+.2),view()[1]-.2);sync()}

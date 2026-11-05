@@ -17,7 +17,7 @@ test('legacy notation converts accents, complete indices, roots and quantifiers 
  for(const [source,tex]of examples)assert.equal(toTex(source),tex,source);
 });
 test('recognition keeps Japanese and English prose outside mathematical spans',()=>{
- const str='標本平均 X̄ₙ と分散 σ²/n を PC と比べる。';
+ const str='標本平均 X̄ₙ と分散 σ²/n を PC と比べる．';
  const parts=segments(str);
  assert.deepEqual(Array.from(parts,p=>str.slice(p.start,p.end)),['X̄ₙ','σ²/n']);
  for(const text of ['さわる数学 / LOGIC GAME','STEP 1','20,000 個の実験','コンピュータが選ぶ'])assert.equal(segments(text).length,0,text);
