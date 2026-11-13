@@ -27,6 +27,10 @@
 - [分散の推定をくらべる](https://kenshi-miyabe.github.io/math_interactive/variance_estimators.html) — 標本を繰り返し取り，標本分散と不偏分散を比較します．
 - [2次元正規分布をさわる](https://kenshi-miyabe.github.io/math_interactive/bivariate_normal_3d.html) — 平均・分散・相関を動かし，確率密度の3D曲面を見ます．
 
+### 計算理論
+
+- [チューリングマシンを動かす](https://kenshi-miyabe.github.io/math_interactive/turing_machine.html) — 両側に無限の1本のテープで，1から0への書き換え・足し算・掛け算を実行し，テープ・ヘッド・状態遷移図を1ステップずつ追います．
+
 対象は目安です．高校生向けの教材にも，大学生向けの理論や発展問題を含みます．
 
 ## 使い方
