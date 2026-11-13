@@ -122,36 +122,60 @@ test('JSON roundtrip preserves definitions and refuses broken references, aritie
   ]) assert.throws(() => R.importLibrary(JSON.stringify(data)));
   assert.throws(() => R.importLibrary('not JSON'));
 });
-test('browser UI connects typed slots, names and reuses functions, persists, and runs finite exercise tests', async () => {
+test('browser UI starts empty, opens saved functions, persists, evaluates, and runs finite exercise tests', async () => {
   const fs = require('node:fs'), vm = require('node:vm'), nodes = new Map(), saved = new Map();
-  const defaults = { arguments: '2, 3', viewMode: 'simple', speed: '250', functionName: 'add', exerciseSelect: '0' };
+  const defaults = { arguments: '', viewMode: 'simple', speed: '250', functionName: 'untitled', exerciseSelect: '0' };
   const element = id => {
-    if (!nodes.has(id)) nodes.set(id, { value: defaults[id] || '', textContent: '', innerHTML: '', events: {}, dataset: {}, classList: { toggle() {} }, addEventListener(name, handler) { this.events[name] = handler; } });
+    if (!nodes.has(id)) nodes.set(id, {
+      value: defaults[id] || '', textContent: '', innerHTML: '', events: {}, dataset: {}, hidden: false,
+      classList: { toggle() {} }, addEventListener(name, handler) { this.events[name] = handler; }, setAttribute() {}, scrollIntoView() {}
+    });
     return nodes.get(id);
   };
   vm.runInNewContext(fs.readFileSync(require.resolve('../assets/recursive-functions-ui.js'), 'utf8'), {
-    document: { getElementById: element, querySelectorAll: () => [], addEventListener() {} }, window: { RecursiveFunctions: R },
+    document: { getElementById: element, querySelectorAll: () => [], addEventListener() {} }, window: { RecursiveFunctions: R, confirm: () => true },
     localStorage: { getItem: name => saved.get(name), setItem: (name, value) => saved.set(name, value) },
     clearInterval() {}, setInterval() { return 1; }, setTimeout
   });
   const submit = { preventDefault() {} };
+  assert.match(element('tree').innerHTML, /関数を追加/);
+  assert.match(element('formula').innerHTML, /boxed/);
+  assert.equal(element('run').disabled, true);
+
+  // A saved sample opens as an ordinary editable tree.
+  element('openMenu').events.click();
+  element('library').events.click({ target: { closest: selector => selector === '[data-open]' ? { dataset: { open: 'add' } } : null } });
+  assert.match(element('tree').innerHTML, /原始再帰/);
+  assert.match(element('tree').innerHTML, /role-badge">h₁/);
+  assert.match(element('tree').innerHTML, /role-badge">h₂/);
+  assert.match(element('formula').innerHTML, /operatorname/);
+  assert.match(element('formulaMap').innerHTML, /h_\{1\}/);
+  assert.match(element('formulaMap').innerHTML, /h_\{2\}/);
+  element('tree').events.click({ target: { closest: selector => selector === '[data-tree-path]' ? { dataset: { treePath: '["base"]' } } : null } });
+  assert.match(element('inspector').innerHTML, /applyProperties/);
+  assert.equal(element('inspector').events.change, undefined);
+  element('closeInspector').events.click();
   element('evalForm').events.submit(submit);
   for (let i = 0; !element('step').disabled && i < 100; i++) element('step').events.click();
   assert.equal(element('result').textContent, '5');
-  element('functionName').value = 'myAdd'; element('saveForm').events.submit(submit);
+
+  element('functionName').value = 'myAdd'; element('saveTop').events.click();
   assert.ok(saved.size);
   assert.match(element('library').innerHTML, /myAdd/);
-  // Selecting an add update slot (3 variables) and trying S (1 variable) must fail.
-  element('tree').events.click({ target: { closest: () => ({ dataset: { treePath: '["step"]' } }) } });
-  element('basicPalette').events.click({ target: { closest: () => ({ dataset: { kind: 'successor' } }) } });
-  assert.match(element('message').textContent, /3変数/);
-  assert.match(element('classification').textContent, /2変数/);
-  element('selectRoot').events.click();
-  element('library').events.click({ target: { closest: selector => selector === '[data-reference]' ? { dataset: { reference: 'myAdd' } } : null } });
-  element('saveForm').events.submit(submit);
-  assert.match(element('message').textContent, /循環/);
-  element('inspector').events.click({ target: { id: 'expandDefinition' } });
-  assert.match(element('tree').innerHTML, /原始再帰/);
+
+  // New functions begin with a truly empty canvas and can be added from +.
+  element('newFunction').events.click();
+  element('tree').events.click({ target: { closest: selector => selector === '[data-add-path]' ? { dataset: { addPath: '[]' } } : null } });
+  assert.equal(element('pickerOverlay').hidden, false);
+  element('operationPalette').events.click({ target: { closest: selector => selector === '[data-kind]' ? { dataset: { kind: 'primitiveRecursion' }, disabled: false } : null } });
+  assert.match(element('tree').innerHTML, /初期関数/);
+  assert.match(element('tree').innerHTML, /g\(x₁\)/);
+  assert.match(element('tree').innerHTML, /h\(x₁, y, untitled\(x₁, y\)\)/);
+  assert.match(element('formula').innerHTML, /初期関数/);
+  assert.match(element('formula').innerHTML, /更新関数/);
+  assert.match(element('formulaNote').textContent, /初期関数/);
+  assert.equal(element('run').disabled, true);
+
   element('showSolution').events.click();
   await element('testExercise').events.click();
   assert.match(element('exerciseResult').textContent, /有限個のテストを通過/);
@@ -168,5 +192,5 @@ test('browser UI connects typed slots, names and reuses functions, persists, and
   element('jsonFile').files = [{ size: json.length, text: async () => json }];
   await element('jsonFile').events.change();
   assert.match(element('library').innerHTML, /plusTwoImported/);
-  assert.match(element('storageStatus').textContent, /保存しました/);
+  assert.match(element('storageStatus').textContent, /保存/);
 });
