@@ -32,6 +32,7 @@
 - [チューリングマシンを動かす](https://kenshi-miyabe.github.io/math_interactive/turing_machine.html) — 両側に無限の1本のテープで，1から0への書き換え・足し算・掛け算を実行し，テープ・ヘッド・状態遷移図を1ステップずつ追います．
 - [レジスタマシンを動かす](https://kenshi-miyabe.github.io/math_interactive/register_machine.html) — I・D・Jの3種類の命令で足し算や掛け算を実行し，レジスタの値・命令のスキップ・相対ジャンプと正常な停止を1ステップずつ追います．自分のプログラムも試せます．
 - [ラムダ計算を動かす](https://kenshi-miyabe.github.io/math_interactive/lambda_calculus.html) — λ式のβ簡約・α変換・定義展開を1ステップずつ追います．Church numeralの計算，真偽値，組，停止しない式や簡約順序の違いも試せます．
+- [再帰関数をつくる](https://kenshi-miyabe.github.io/math_interactive/recursive_functions.html) — 基本関数・合成・原始再帰・最小化を構成木で組み立て，名前を付けて保存・再利用します．段階的な評価，演習，JSONの入出力に対応しています．
 
 対象は目安です．高校生向けの教材にも，大学生向けの理論や発展問題を含みます．
 
