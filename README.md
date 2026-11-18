@@ -24,6 +24,8 @@
 
 - [大数の法則をさわる](https://kenshi-miyabe.github.io/math_interactive/law_of_large_numbers.html) — 分布とパラメータを選び，複数の標本平均が期待値へ近づく様子を観察します．
 
+- [大数の法則を密度で見る](https://kenshi-miyabe.github.io/math_interactive/law_of_large_numbers_density.html) — 標本平均の密度が一点に集中し，μ±ε の外側の面積（確率）が 0 に近づく様子を観察します．
+
 - [分散の推定をくらべる](https://kenshi-miyabe.github.io/math_interactive/variance_estimators.html) — 標本を繰り返し取り，標本分散と不偏分散を比較します．
 - [2次元正規分布をさわる](https://kenshi-miyabe.github.io/math_interactive/bivariate_normal_3d.html) — 平均・分散・相関を動かし，確率密度の3D曲面を見ます．
 

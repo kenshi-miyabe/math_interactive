@@ -37,7 +37,7 @@
     while((m=token.exec(text))){const t=m[0];if(m.index!==previous)flush();if(/^[A-Za-z]+$/.test(t)&&!word.test(t)){flush();previous=token.lastIndex;continue;}if(start<0){if(/^[\s,!:.)\]}]+$/.test(t)){previous=token.lastIndex;continue;}start=m.index;}end=token.lastIndex;if(t.startsWith('\\bar')||/[Xx]̄/u.test(t)||word.test(t)||/[α-ωΣΔℝℤℚ∞∀∃∧∨∈∉≤≥≠≈√‖∠△÷°=/*^±×]/u.test(t))hasSymbol=true;previous=token.lastIndex;}
     flush();return output;
   }
-  const ignored='script,style,textarea,pre,code,option,select,input,title,.katex,[data-tex],.math-tex,.canvas-math';
+  const ignored='[data-math-explicit-only],script,style,textarea,pre,code,option,select,input,title,.katex,[data-tex],.math-tex,.canvas-math';
   function typeset(el,tex,display=false) {
     if(!window.katex)return;
     try {window.katex.render(tex,el,{displayMode:display,throwOnError:true,strict:'ignore',trust:false});el.dataset.renderedTex=tex;}
