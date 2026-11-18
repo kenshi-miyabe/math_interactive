@@ -7,6 +7,7 @@
   const confirmAction = text => typeof window.confirm !== 'function' || window.confirm(text);
   let library = R.samples(), draft = null, selected = [], pickerPath = [], past = [], future = [];
   let evaluation = null, timer = null, lastEvent = null, storageNote = '', testToken = 0, judging = false;
+  let libraryClearCount = 0;
   const exercises = [
     { name: 'x + 2', key: 'plus2', arity: 1, hint: 'Sを二重に合成します．', tree: () => R.composition(R.successor(), [R.successor()]), cases: [[0], [1], [3], [5]], expected: ([x]) => x + 2n },
     { name: '加法', key: 'add', arity: 2, hint: '初期関数はP₁¹，更新関数はSとP₃³の合成です．', cases: [[0, 0], [0, 3], [2, 3], [3, 1]], expected: ([x, y]) => x + y },
@@ -280,7 +281,12 @@
     }
     if (node.type === 'minimization') content += `<p class="node-explanation">探索対象gが初めて0になる，最小の自然数yを探します．</p><div class="fields">${field('結果の引数 n', 'arity', node.arity)}</div>`;
     if (['zero', 'projection', 'composition', 'primitiveRecursion', 'minimization'].includes(node.type)) content += '<div class="fields"><button id="applyProperties" class="primary" type="button">セット</button><span class="note">数値は「セット」を押すまで構成に反映されません．</span></div>';
-    if (node.type === 'reference') { const def = library.get(node.name); content += `<p>${escape(def.description)}</p><div class="definition">${escape(noteTree(def.tree))}</div><button id="expandDefinition" type="button">内部定義を展開</button>`; }
+    if (node.type === 'reference') {
+      const def = library.get(node.name);
+      content += def
+        ? `<p>${escape(def.description)}</p><div class="definition">${escape(noteTree(def.tree))}</div><button id="expandDefinition" type="button">内部定義を展開</button>`
+        : '<p class="note">参照先の関数がありません．別の関数に置き換えてください．</p>';
+    }
     content += '<div class="fields"><button id="replaceNode" type="button">置き換え</button><button id="deleteNode" class="danger" type="button">削除</button></div>';
     $('inspector').innerHTML = content;
   }
@@ -303,6 +309,23 @@
       const core = toCore(draft), name = $('functionName').value.trim();
       library = R.saveDefinition(library, name, core, $('description').value.trim()); persist(); renderLibrary(); renderEditor(); message(`「${name}」を保存しました．`);
     } catch (error) { message(error.message, true); }
+  }
+
+  function clearSavedLibrary() {
+    if (!confirmAction('このブラウザに保存した関数をすべて削除しますか？ 一覧は見本だけに戻ります．編集中の構成で削除した関数を参照している場合は，参照先を置き換えてください．')) return;
+    try {
+      localStorage.removeItem(storageKey);
+    } catch (_) {
+      message('ブラウザ内の保存データを削除できませんでした．', true);
+      return;
+    }
+    libraryClearCount++;
+    library = R.samples();
+    clearEvaluation();
+    storageNote = 'このブラウザに保存した関数を削除しました．';
+    renderLibrary();
+    renderEditor();
+    message(storageNote);
   }
 
   function parseInputs() {
@@ -435,10 +458,19 @@
     catch (error) { message(error.message, true); }
   });
   $('importJson').addEventListener('click', () => $('jsonFile').click());
+  $('clearLibrary').addEventListener('click', clearSavedLibrary);
   $('jsonFile').addEventListener('change', async () => {
     const file = $('jsonFile').files[0]; if (!file) return;
-    try { if (file.size > 1500000) throw new Error('JSONは1.5MBまで読み込めます．'); const proposed = R.importLibrary(await file.text(), library); if (draft && safeInfo(draft)) R.info(toCore(draft), proposed); library = proposed; persist(); renderLibrary(); renderEditor(); message('JSONの関数を読み込みました．'); }
-    catch (error) { message(error.message, true); } $('jsonFile').value = '';
+    $('jsonFile').value = '';
+    const clearCount = libraryClearCount;
+    try {
+      if (file.size > 1500000) throw new Error('JSONは1.5MBまで読み込めます．');
+      const text = await file.text();
+      if (clearCount !== libraryClearCount) return;
+      const proposed = R.importLibrary(text, library);
+      if (draft && safeInfo(draft)) R.info(toCore(draft), proposed);
+      library = proposed; persist(); renderLibrary(); renderEditor(); message('JSONの関数を読み込みました．');
+    } catch (error) { if (clearCount === libraryClearCount) message(error.message, true); }
   });
   document.addEventListener('visibilitychange', () => { if (document.hidden && timer) { pause(); renderEvaluation(); } });
   try { const saved = localStorage.getItem(storageKey); if (saved) { library = R.importLibrary(saved, library); storageNote = '保存した関数を読み込みました．'; } else storageNote = '関数はこのブラウザに保存されます．'; }

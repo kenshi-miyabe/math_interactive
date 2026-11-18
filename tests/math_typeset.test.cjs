@@ -23,10 +23,28 @@ test('recognition keeps Japanese and English prose outside mathematical spans',(
  for(const text of ['さわる数学 / LOGIC GAME','STEP 1','20,000 個の実験','コンピュータが選ぶ'])assert.equal(segments(text).length,0,text);
  assert.equal(segments('P₀〜Pₙ₋₁').length,1);
 });
-test('every HTML page includes the same version of KaTeX and the shared renderer',()=>{
+test('every HTML page loads the bundled KaTeX and renderer without remote resources',()=>{
  const files=fs.readdirSync(root).filter(f=>f.endsWith('.html')).concat(['review/inscribed_angle_theorem.html']);
  assert.ok(files.includes('central_limit_theorem.html'));
- for(const name of files){const html=fs.readFileSync(path.join(root,name),'utf8');assert.equal((html.match(/katex@0\.19\.0\/dist\/katex.min.js/g)||[]).length,1,name);assert.match(html,/assets\/math-typeset.js/);assert.match(html,/assets\/math-typeset.css/);assert.match(html,/data-tex=/);for(const m of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))assert.doesNotThrow(()=>new Function(m[1]),name);}
+ for(const name of files){
+  const file=path.join(root,name), html=fs.readFileSync(file,'utf8');
+  const resources=[...html.matchAll(/<(?:script|link)\b[^>]*?\b(?:src|href)="([^"]+)"/g)].map(match=>match[1]);
+  for(const target of ['vendor/katex-0.19.0/katex.min.js','vendor/katex-0.19.0/katex.min.css','math-typeset.js','math-typeset.css']){
+   assert.equal(resources.filter(url=>path.resolve(path.dirname(file),url)===path.join(root,'assets',target)).length,1,`${name}: ${target}`);
+  }
+  if(name.startsWith('review/')) assert.ok(resources.includes('../assets/vendor/tailwindcss-3.4.17/inscribed-angle.min.css'));
+  for(const url of resources){
+   assert.doesNotMatch(url,/^(?:[a-z]+:)?\/\//i,name);
+   assert.ok(fs.existsSync(path.resolve(path.dirname(file),url)),`${name}: ${url}`);
+  }
+  assert.match(html,/data-tex=/);
+  for(const m of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))assert.doesNotThrow(()=>new Function(m[1]),name);
+ }
+ const katexDir=path.join(root,'assets/vendor/katex-0.19.0');
+ const css=fs.readFileSync(path.join(katexDir,'katex.min.css'),'utf8');
+ const fontPaths=[...css.matchAll(/url\((fonts\/[^)]+)\)/g)].map(match=>match[1]);
+ assert.ok(fontPaths.length>0);
+ for(const font of fontPaths) assert.ok(fs.existsSync(path.join(katexDir,font)),font);
 });
 
 test('emoji before formulas does not change angle values or prose',()=>{

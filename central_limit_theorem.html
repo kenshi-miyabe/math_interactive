@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>中心極限定理をさわる | さわる数学</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="assets/vendor/katex-0.19.0/katex.min.css">
+<script defer src="assets/vendor/katex-0.19.0/katex.min.js"></script>
 <link rel="stylesheet" href="assets/math-typeset.css">
 <script src="assets/math-typeset.js"></script>
 <script src="assets/central-limit-core.js"></script>
@@ -48,7 +48,7 @@
 <details><summary>試してみよう・実験の仕組み</summary><ol><li>指数分布で，最初は右に長い裾が，標本数を増やすにつれて左右対称の形に近づく様子を見る．</li><li>ベルヌーイ分布で成功確率を0.5と0.01にする．正規分布に近づく速さの違いを比べる．</li><li>正規分布を選ぶ．もとが正規分布なら，標準化した平均はどの標本数でも理論上は標準正規分布になる．</li><li>同じ設定で実験をやり直したり，繰り返し回数を増やしたりして，ヒストグラムの凹凸と分布の形の違いを考える．</li></ol><p>指数分布の率や正規分布の平均・標準偏差を変えても，標準化後の理論分布の形は変わりません．標準化前の分布と見比べてみましょう．</p><p class="small">同じ乱数の種を使い，各実験に別々の乱数列を割り当てます．標本数の切り替えは各実験の先頭からの標本を使うため，同じ実験に標本を追加する比較になります．繰り返し回数を増やしても，既存の実験の標本列は変わりません．標本数の切り替えと再生では，乱数を取り直しません．</p><p class="small">横軸はおおむね −4.5〜4.5 の範囲です．離散分布で値の間隔が小さくなると，その間隔の整数倍を階級幅にして，階級の境界だけによる不自然な凹凸を抑えます．このため横軸の端と階級幅は少し変わります．縦軸は棒と曲線を含む範囲に自動調整します．表示範囲外の件数はグラフ下に示し，密度の分母には全実験回数を使います．</p><p class="small">このヒストグラムは有限回の実験です．すべての分布が同じ速さで近づくわけでも，標本数が30なら十分と決まっているわけでもありません．ベルヌーイ分布の成功確率0または1は分散が0で標準化できないため，選択範囲から除いています．</p></details>
 </section>
 </main>
-<footer>さわる数学 · <a href="law_of_large_numbers.html">大数の法則をさわる</a> · <a href="variance_estimators.html">分散の推定をくらべる</a></footer>
+<footer>さわる数学 · <a href="law_of_large_numbers.html">大数の法則をさわる</a> · <a href="variance_estimators.html">分散の推定をくらべる</a> · <a href="https://github.com/kenshi-miyabe/math_interactive#readme">教材一覧・利用案内</a></footer>
 <script>
 'use strict';
 const $=id=>document.getElementById(id),{sizes}=CLTCore;

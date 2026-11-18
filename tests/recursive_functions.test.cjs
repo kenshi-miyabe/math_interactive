@@ -124,6 +124,7 @@ test('JSON roundtrip preserves definitions and refuses broken references, aritie
 });
 test('browser UI starts empty, opens saved functions, persists, evaluates, and runs finite exercise tests', async () => {
   const fs = require('node:fs'), vm = require('node:vm'), nodes = new Map(), saved = new Map();
+  let confirmDelete = true;
   const defaults = { arguments: '', viewMode: 'simple', speed: '250', functionName: 'untitled', exerciseSelect: '0' };
   const element = id => {
     if (!nodes.has(id)) nodes.set(id, {
@@ -133,8 +134,8 @@ test('browser UI starts empty, opens saved functions, persists, evaluates, and r
     return nodes.get(id);
   };
   vm.runInNewContext(fs.readFileSync(require.resolve('../assets/recursive-functions-ui.js'), 'utf8'), {
-    document: { getElementById: element, querySelectorAll: () => [], addEventListener() {} }, window: { RecursiveFunctions: R, confirm: () => true },
-    localStorage: { getItem: name => saved.get(name), setItem: (name, value) => saved.set(name, value) },
+    document: { getElementById: element, querySelectorAll: () => [], addEventListener() {} }, window: { RecursiveFunctions: R, confirm: () => confirmDelete },
+    localStorage: { getItem: name => saved.get(name), setItem: (name, value) => saved.set(name, value), removeItem: name => saved.delete(name) },
     clearInterval() {}, setInterval() { return 1; }, setTimeout
   });
   const submit = { preventDefault() {} };
@@ -193,4 +194,30 @@ test('browser UI starts empty, opens saved functions, persists, evaluates, and r
   await element('jsonFile').events.change();
   assert.match(element('library').innerHTML, /plusTwoImported/);
   assert.match(element('storageStatus').textContent, /保存/);
+
+  confirmDelete = false;
+  element('clearLibrary').events.click();
+  assert.match(element('library').innerHTML, /plusTwoImported/);
+  assert.ok(saved.has('math-interactive.recursive-functions.v1'));
+
+  element('newFunction').events.click();
+  element('tree').events.click({ target: { closest: selector => selector === '[data-add-path]' ? { dataset: { addPath: '[]' } } : null } });
+  element('savedPicker').events.click({ target: { closest: () => ({ dataset: { reference: 'plusTwoImported' } }) } });
+  let finishReading;
+  element('jsonFile').files = [{ size: json.length, text: () => new Promise(resolve => { finishReading = resolve; }) }];
+  const pendingImport = element('jsonFile').events.change();
+
+  confirmDelete = true;
+  saved.set('unrelated-data', 'keep');
+  element('clearLibrary').events.click();
+  finishReading(json);
+  await pendingImport;
+  assert.deepEqual([...saved], [['unrelated-data', 'keep']]);
+  assert.doesNotMatch(element('library').innerHTML, /myAdd|plusTwoImported/);
+  assert.match(element('library').innerHTML, /data-open="add"/);
+  assert.doesNotMatch(element('savedPicker').innerHTML, /plusTwoImported/);
+  assert.match(element('tree').innerHTML, /plusTwoImported/);
+  assert.equal(element('run').disabled, true);
+  element('tree').events.click({ target: { closest: selector => selector === '[data-tree-path]' ? { dataset: { treePath: '[]' } } : null } });
+  assert.match(element('inspector').innerHTML, /参照先の関数がありません/);
 });

@@ -8,8 +8,8 @@
 @media(max-width:720px){.wrap{padding:10px}.page-header h1{font-size:18px}.page-header>.note{display:none}.panel{padding:14px}.workspace{padding:0}.current-section,.preview-section{padding:10px 12px}.term{font-size:17px;max-height:140px;min-height:55px}.rewrite{padding:8px 12px;font-size:12px;gap:9px}.controls{gap:6px;padding:8px}.controls button{font-size:12px;padding:7px 9px}.columns{grid-template-columns:1fr}.heading{flex-basis:100%;font-size:13px}.notice{padding:8px 12px}.setup-row{gap:8px}}
 @media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#111922;--paper:#1a2532;--ink:#e3eaf2;--muted:#a4b2c4;--line:#354355;--soft:#222f40;--teal:#5bd3bf;--tint:#203e3d;--orange:#ffb46d;--highlight:#4a3526;--bad:#ff9f9f}button.primary{background:#137b70;color:white;border-color:#137b70}}
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="assets/vendor/katex-0.19.0/katex.min.css">
+<script defer src="assets/vendor/katex-0.19.0/katex.min.js"></script>
 <link rel="stylesheet" href="assets/math-typeset.css"><script src="assets/math-typeset.js"></script>
 <script defer src="assets/lambda-calculus.js"></script><script defer src="assets/lambda-calculus-ui.js"></script></head>
 <body data-math-explicit-only><div class="wrap"><header class="page-header"><h1>ラムダ計算を動かす</h1><span class="note">さわる数学 / 計算理論</span></header><main>
@@ -27,4 +27,4 @@
 <section class="panel source"><h2>自分の式を試す</h2><label class="sr-only" for="source">ラムダ式</label><textarea id="source" spellcheck="false"></textarea><button id="loadSource">この式をセット</button><p id="sourceError" class="error" role="alert" hidden></p><p><code>λx. x</code> のほか，バックスラッシュを使った <code>\x. x</code> も入力できます．<code>λx y. x</code> は <code>λx. λy. x</code> の略記です．適用は左結合で，<code>f x y</code> は <code>(f x) y</code> を表します．λの本体は右端まで続きます．</p><p>下の定義名と，0〜100のChurch numeralの略記が使えます．変数名は英字などで始まる名前です．大文字・小文字は区別します．</p></section>
 <section class="panel"><div class="section-head"><h2>使える略記と定義</h2><span class="note">定義展開はβ簡約とは別に表示</span></div><div class="definitions"><table><thead><tr><th>名前</th><th>定義</th><th>意味</th></tr></thead><tbody id="definitions"></tbody></table></div></section>
 <section class="panel"><div class="section-head"><h2>書き換えの履歴</h2><span id="historyHint" class="note"></span></div><div id="history" class="history"></div></section>
-</div></main><footer><a href="README.md">教材一覧</a> · <a href="turing_machine.html">チューリングマシン</a> · <a href="register_machine.html">レジスタマシン</a> · オフラインでも動きます．</footer></div></body></html>
+</div></main><footer><a href="https://github.com/kenshi-miyabe/math_interactive#readme">教材一覧・利用案内</a> · <a href="turing_machine.html">チューリングマシン</a> · <a href="register_machine.html">レジスタマシン</a> · オフラインでも動きます．</footer></div></body></html>
